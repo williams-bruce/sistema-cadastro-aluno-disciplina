@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "list_alunos.c"
 #include "list_disciplinas.c"
 #define True 1
@@ -18,10 +19,11 @@ int menu();
 int menuAlunos();
 int menuDisciplinas();
 int menuPeriodos();
-void saveAluno(FILE *file, ALUNO aluno);
+void getAlunoData(ALUNO *aluno);
+void saveAlunos(LIST_ALUNO *list_of_alunos);
 void printAluno(int contador, ALUNO aluno);
 void continuar();
-int deleteData();
+int sureDeleteData();
 
 
 int main() {
@@ -35,80 +37,66 @@ int main() {
     int stayOnLoop = True;
     while(stayOnLoop) {
         switch (menu()) {
-            case 1:{
-                cls();
-                switch(menuAlunos()) {
-                    case 1:{ /* Cadastra um novo aluno */
-                        cls();
-                        ALUNO aluno;
-                        puts("Digite o codigo do aluno:");
-                        fflush(stdin);
-                        gets(aluno.codigo);
-                        cls();
-
-                        puts("Digite o nome do aluno:");
-                        fflush(stdin);
-                        gets(aluno.nome);
-                        cls();
-
-                        puts("Digite o cpf do aluno (apenas numeros):");
-                        fflush(stdin);
-                        gets(aluno.cpf);
-                        cls();
-
-                        insert_end_aluno(&listAlunos, aluno);
-                        puts("Aluno salvo com sucesso!\n");
-                        continuar();
-                        cls();
-                        break;
-                    }
-                    case 2:{ /* Lista todos os alunos cadastrados */
-                        cls();
-                        if (listAlunos.len == 0) {
-                            puts("Nao ha alunos cadastrados!");
+            case 1:{ /*ABA DE ALUNOS*/
+                int stayOnAlunos = True;
+                while(stayOnAlunos){
+                    cls();
+                    switch(menuAlunos()) {
+                        case 1:{ /* Cadastra um novo aluno */
+                            cls();
+                            ALUNO aluno;
+                            getAlunoData(&aluno);
+                            insert_end_aluno(&listAlunos, aluno);
+                            puts("Aluno salvo com sucesso!\n");
                             continuar();
+                            break;
+                        }
+                        case 2:{ /* Lista todos os alunos cadastrados */
+                            cls();
+                            if (listAlunos.len == 0) {
+                                puts("Nao ha alunos cadastrados!\n");
+                                continuar();
+                                break;
+                            }
+                            printf("Alunos cadastrados: \n\n");
+                            for(int i = 0; i<listAlunos.len; i++){
+                                ALUNO alunoToPrint = aluno_at_position(&listAlunos, i);
+                                printAluno(i, alunoToPrint);
+                            }
+                            puts("\n");
+                            continuar();
+                            break;
+                        }
+                        case 3:{ /* Remove um aluno cadastrado */
+                            char nameToRemove[6];
+                            puts("Digite o codigo do aluno a ser removido: ");
+                            fflush(stdin);
+                            gets(nameToRemove);
+                            cls();
+                            int position = query_aluno_by_code(&listAlunos, nameToRemove);
+                            if (position == -1){
+                                printf("O aluno %s nao esta cadastrado. Tente novamente com um aluno cadastrado.\n\n", nameToRemove);
+                                continuar();
+                                break;
+                            }
+                            if (sureDeleteData()){
+                                del_position_aluno(&listAlunos, position);
+                                puts("Aluno removido com sucesso!\n\n");
+                                continuar();
+                                break;
+                            }
+                            break;
+                        }
+                        case 4:{
+                            stayOnAlunos = False;
                             cls();
                             break;
                         }
-                        printf("Alunos cadastrados: \n\n");
-                        for(int i = 0; i<listAlunos.len; i++){
-                            ALUNO alunoToPrint = aluno_at_position(&listAlunos, i);
-                            printAluno(i, alunoToPrint);
-                        }
-                        puts("\n");
-                        continuar();
-                        cls();
-                        break;
-                    }
-                    case 3:{ /* Remove um aluno cadastrado */
-                        char nameToRemove[50];
-                        puts("Digite o nome do aluno a ser removido: ");
-                        fflush(stdin);
-                        gets(nameToRemove);
-                        cls();
-                        int position = query_aluno_by_name(&listAlunos, nameToRemove);
-
-                        if (position == -1){
-                            printf("O aluno %s nao esta cadastrado. Tente novamente com um aluno cadastrado.\n\n", nameToRemove);
+                        default:{
+                            puts("Opçao invalida. Tente novamente.");
                             continuar();
-                            cls();
                             break;
                         }
-                        if (deleteData()){
-                            del_position_aluno(&listAlunos, position);
-                            puts("Aluno removido com sucesso!\n\n");
-                            continuar();
-                            cls();
-                            break;
-                        }
-                        cls();
-                        break;
-                    }
-                    default:{
-                        puts("Opçao invalida. Tente novamente.");
-                        continuar();
-                        cls();
-                        break;
                     }
                 }
                 break;
@@ -139,6 +127,8 @@ int main() {
             
             default: {
                 puts("Opcao invalida. Tente novamente.");
+                continuar();
+                cls();
                 break;
             }
         }
@@ -201,8 +191,9 @@ int menuAlunos() {
     puts("********** ABA DE ALUNOS **********\n");
     puts("O que deseja fazer?");
     puts("1 --> Cadastrar aluno.");
-    puts("2 --> Listar alunos cadastrados.");
-    puts("3 --> Remover aluno cadastrado.");
+    puts("2 --> Listar alunos.");
+    puts("3 --> Remover aluno.");
+    puts("4 --> Voltar ao menu inicial.");
     int decisao;
     fflush(stdin);
     printf("\nDigite o numero de sua escolha: ");
@@ -212,28 +203,32 @@ int menuAlunos() {
 }
 
 int menuDisciplinas() {
-    puts("********** ABA DE ALUNOS **********");
+    puts("********** ABA DE DISCIPLINAS **********");
     puts("O que deseja fazer?");
     puts("1 --> Cadastrar disciplina.");
     puts("2 --> Listar disciplinas cadastradas.");
-    puts("2 --> Remover disciplina cadastrada.");
+    puts("3 --> Remover disciplina cadastrada.");
+    puts("4 --> Voltar ao menu inicial.");
     int decisao;
     fflush(stdin);
     printf("Digite o numero de sua escolha: ");
     scanf("%d", &decisao);
+    cls();
     return decisao;
 }
 
 int menuPeriodos() {
-    puts("********** ABA DE ALUNOS **********");
+    puts("********** ABA DE PERIODOS **********");
     puts("O que deseja fazer?");
     puts("1 --> Cadastrar Periodo.");
     puts("2 --> Listar Periodos cadastrados.");
-    puts("2 --> Remover Periodo cadastrado.");
+    puts("3 --> Remover Periodo cadastrado.");
+    puts("4 --> Voltar ao menu inicial.");
     int decisao;
     fflush(stdin);
     printf("Digite o numero de sua escolha: ");
     scanf("%d", &decisao);
+    cls();
     return decisao;
 }
 
@@ -243,22 +238,41 @@ void cls() {
     }
 }
 
-void saveAluno(FILE *alunoFile, ALUNO aluno) {
-    alunoFile = fopen("alunos.dat", "a+b");
-    if (alunoFile == NULL) {
-        puts("Nao foi possivel salvar os dados do aluno.");
+void getAlunoData(ALUNO *aluno) {
+    puts("Digite o codigo do aluno:");
+    fflush(stdin);
+    gets(aluno->codigo);
+    cls();
+
+    puts("Digite o nome do aluno:");
+    fflush(stdin);
+    gets(aluno->nome);
+    cls();
+
+    puts("Digite o cpf do aluno (apenas numeros):");
+    fflush(stdin);
+    gets(aluno->cpf);
+    cls();
+}
+
+void saveAlunos(LIST_ALUNO *list_of_alunos) {
+    alunosFile = fopen("alunos.dat", "a+b");
+    if (alunosFile == NULL) {
+        puts("Nao foi possivel abrir o arquivo de alunos.");
         exit(1);
     }
-    if (fwrite(&aluno, sizeof(ALUNO), 1, alunoFile) != 1) {
-        puts("Falha ao tentar escrever o registro do aluno.");
-        exit(1);
+    for (int i = 0; i < list_of_alunos->len; i++){
+        ALUNO aluno = aluno_at_position(list_of_alunos, i);
+        if (fwrite(&aluno, sizeof(ALUNO), 1, alunosFile) != 1) {
+            puts("Falha ao tentar escrever o registro do aluno.");
+            exit(1);
+        }
     }
-    fclose(alunoFile);
+    fclose(alunosFile);
 }
 
 void printAluno(int contador, ALUNO aluno) { /* printa um aluno na tela com sua posição e nome */
-    
-    printf("%d --> %s\n", contador+1, aluno.nome);
+    printf("%d --> %5s   %30s   %11s\n", contador+1, aluno.codigo ,aluno.nome, aluno.cpf);
 }
 
 void continuar() {
@@ -267,7 +281,7 @@ void continuar() {
     getchar();
 }
 
-int deleteData() {
+int sureDeleteData() { /*Verifica se o usuario realmente quer deletar o dado*/
     int retorno = -1;
     while (retorno == -1){
         char decisao;
@@ -293,6 +307,8 @@ int deleteData() {
             }
         }
     }
+    cls();
     return retorno;
 }
+
 

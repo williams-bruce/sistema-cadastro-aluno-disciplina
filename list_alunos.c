@@ -147,17 +147,28 @@ void del_position_aluno(LIST_TYPE *lista, int position) {
     if (position < 0) {
         position = lista->len + position;
     }
-    if (position >= lista->len - 1 || position < 0) {
+    if (position >= lista->len || position < 0) {
         fprintf(stderr, "Index list out of range.");
         exit(1);
+    }
+    if (position == 0 && lista->len == 1) {
+        NO *aux = lista->start;
+        lista->start = NULL;
+        lista->end = NULL;
+        free(aux);
+    }
+    else if (position == 0 && lista->len != 1) {
+        NO *aux = lista->start;
+        lista->start = aux->next;
+        free(aux);
     }
     else {
         NO *before_to_remove = _no_at_position_aluno(lista, position-1);
         NO *to_remove = before_to_remove->next;
         before_to_remove->next = before_to_remove->next->next;
-        lista->len--;
         free(to_remove);
     }
+    lista->len--;
 }
 
 void del_first_aluno(LIST_TYPE *lista) {
@@ -168,13 +179,13 @@ void del_last_aluno(LIST_TYPE *lista) {
     del_position_aluno(lista, lista->len - 1);
 }
 
-int query_aluno_by_name(LIST_TYPE *lista, char *nome) { /*Procura um aluno pelo nome e retorna a posição do nó na lista*/
+int query_aluno_by_code(LIST_TYPE *lista, char *code) { /*Procura um aluno pelo code e retorna a posição do nó na lista*/
     NO *aux = lista->start;
     if (aux == NULL){
         return -1;
     }
     for (int i = 0; i < lista->len; i++) {
-        int teste = strcmp(nome, (aux->aluno).nome);
+        int teste = strcmp(code, (aux->aluno).codigo);
         if (!teste){
             return i;
         }
