@@ -59,6 +59,7 @@ int main() {
                                 break;
                             }
                             printf("Alunos cadastrados: \n\n");
+                            printf("nr    Codigo                     Nome              CPF\n");
                             for(int i = 0; i<listAlunos.len; i++){
                                 ALUNO alunoToPrint = aluno_at_position(&listAlunos, i);
                                 printAluno(i, alunoToPrint);
@@ -68,14 +69,14 @@ int main() {
                             break;
                         }
                         case 3:{ /* Remove um aluno cadastrado */
-                            char nameToRemove[6];
+                            char alunoToRemove[50];
                             puts("Digite o codigo do aluno a ser removido: ");
                             fflush(stdin);
-                            gets(nameToRemove);
+                            gets(alunoToRemove);
                             cls();
-                            int position = query_aluno_by_code(&listAlunos, nameToRemove);
+                            int position = query_aluno_by_code(&listAlunos, alunoToRemove);
                             if (position == -1){
-                                printf("O aluno %s nao esta cadastrado. Tente novamente com um aluno cadastrado.\n\n", nameToRemove);
+                                printf("O aluno %s nao esta cadastrado. Tente novamente com um aluno cadastrado.\n\n", alunoToRemove);
                                 continuar();
                                 break;
                             }
@@ -140,7 +141,7 @@ int main() {
 void startFiles() {
     alunosFile = fopen("alunos.dat", "r+b");
     if (alunosFile == NULL) {
-        alunosFile = fopen("aluno.dat", "w+b");
+        alunosFile = fopen("alunos.dat", "w+b");
         if (alunosFile == NULL) {
             fprintf(stderr, "Impossivel criar arquivo de alunos.");
             exit(1);
@@ -151,7 +152,7 @@ void startFiles() {
 
     disciplinasFile = fopen("disciplinas.dat", "r+b");
     if (disciplinasFile == NULL) {
-        disciplinasFile = fopen("aluno.dat", "w+b");
+        disciplinasFile = fopen("disciplinas.dat", "w+b");
         if (disciplinasFile == NULL) {
             fprintf(stderr, "Impossivel criar arquivo de disciplinas.");
             exit(1);
@@ -162,7 +163,7 @@ void startFiles() {
 
     periodoFiles = fopen("periodos.dat", "r+b");
     if (periodoFiles == NULL) {
-        periodoFiles = fopen("aluno.dat", "w+b");
+        periodoFiles = fopen("periodos.dat", "w+b");
         if (periodoFiles == NULL) {
             fprintf(stderr, "Impossivel criar arquivo de periodos.");
             exit(1);
@@ -239,20 +240,42 @@ void cls() {
 }
 
 void getAlunoData(ALUNO *aluno) {
-    puts("Digite o codigo do aluno:");
-    fflush(stdin);
-    gets(aluno->codigo);
-    cls();
+    while(True) {
+        char codigo[50];
+        puts("Digite o codigo do aluno:");
+        fflush(stdin);
+        gets(codigo);
+        if (strlen(codigo) != 5) {
+            printf("Seu codigo deve ter 5 digitos. Tente novamente...\n");
+            continuar();
+            cls();
+            continue;
+        }
+        strcpy(aluno->codigo, codigo);
+        cls();
+        break;
+    }
 
     puts("Digite o nome do aluno:");
     fflush(stdin);
     gets(aluno->nome);
     cls();
 
-    puts("Digite o cpf do aluno (apenas numeros):");
-    fflush(stdin);
-    gets(aluno->cpf);
-    cls();
+    while(True) {
+        char cpf[50];
+        puts("Digite o cpf do aluno (apenas numeros):");
+        fflush(stdin);
+        gets(cpf);
+        if(strlen(cpf) != 11) {
+            printf("O CPF deve ter 11 digitos. Tente novamente...\n");
+            continuar();
+            cls();
+            continue;
+        }
+        strcpy(aluno->cpf, cpf);
+        cls();
+        break;
+    }
 }
 
 void saveAlunos(LIST_ALUNO *list_of_alunos) {
