@@ -204,7 +204,7 @@ void print_list(list *lista) {
     putchar('\n');
 }
 
-void remove_at_position(list *lista, int position) {
+void del_at_position(list *lista, int position) {
     if (position < 0) {
         position = lista->len + position;
     }
@@ -212,21 +212,32 @@ void remove_at_position(list *lista, int position) {
         fprintf(stderr, "Index list out of range.");
         exit(1);
     }
+    if (position == 0 && lista->len == 1) {
+        NO *aux = lista->start;
+        lista->start = NULL;
+        lista->end = NULL;
+        free(aux);
+    }
+    else if (position == 0 && lista->len != 1) {
+        NO *aux = lista->start;
+        lista->start = aux->next;
+        free(aux);
+    }
     else {
         NO *before_to_remove = _no_at_position(lista, position-1);
         NO *to_remove = before_to_remove->next; 
         before_to_remove->next = before_to_remove->next->next;
-        lista->len--;
         free(to_remove);
     }
+    lista->len--;
 }
 
 void remove_first(list *lista) {
-    remove_at_position(lista, 0);
+    del_at_position(lista, 0);
 }
 
 void remove_last(list *lista) {
-    remove_at_position(lista, lista->len - 1);
+    del_at_position(lista, lista->len - 1);
 }
 
 
