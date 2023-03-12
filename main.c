@@ -6,11 +6,13 @@
 #include "list_disciplinas.c"
 #define True 1
 #define False 0
+#define ARQ_ALUNOS "alunos.dat"
+#define ARQ_DISCIPLINAS "disciplinas.dat"
+#define ARQ_PERIODOS "periodos.dat"
 
 FILE *alunosFile;
 FILE *disciplinasFile;
 FILE *periodoFiles;
-
 
 
 void startFiles();
@@ -20,10 +22,12 @@ int menuAlunos();
 int menuDisciplinas();
 int menuPeriodos();
 void getAlunoData(ALUNO *aluno);
-void saveAlunos(LIST_ALUNO *list_of_alunos);
+void saveAlunosOnFile(LIST_ALUNO *list_of_alunos);
 void printAluno(int contador, ALUNO aluno);
 void continuar();
 int sureDeleteData();
+void getAlunosFromFile(LIST_ALUNO *list_of_alunos);
+int isFileEmpty(FILE *file, char *filename);
 
 
 int main() {
@@ -31,6 +35,9 @@ int main() {
     start_list_aluno(&listAlunos);
 
     startFiles();
+    if (!isFileEmpty(alunosFile, ARQ_ALUNOS)) {
+        getAlunosFromFile(&listAlunos);
+    }
     cls();
     printf("Bem vindo ao sistema de cadastro de alunos, disciplinas e periodos.\n\n");
 
@@ -47,7 +54,7 @@ int main() {
                             ALUNO aluno;
                             getAlunoData(&aluno);
                             insert_end_aluno(&listAlunos, aluno);
-                            puts("Aluno salvo com sucesso!\n");
+                            puts("Aluno cadastrado com sucesso!\n");
                             continuar();
                             break;
                         }
@@ -80,6 +87,9 @@ int main() {
                                 continuar();
                                 break;
                             }
+                            printf("Voce pretende apagar os dados do aluno:\n");
+                            printAluno(position, aluno_at_position(&listAlunos, position));
+                            putchar('\n');
                             if (sureDeleteData()){
                                 del_position_aluno(&listAlunos, position);
                                 puts("Aluno removido com sucesso!\n\n");
@@ -94,7 +104,7 @@ int main() {
                             break;
                         }
                         default:{
-                            puts("Opçao invalida. Tente novamente.");
+                            puts("Opcao invalida. Tente novamente.");
                             continuar();
                             break;
                         }
@@ -118,9 +128,10 @@ int main() {
                 puts("Falta implementar menu.");
                 break;
             }
-            case 6:{
+            case 6:{ /*Sair do programa*/
                 puts("Salvando arquivos e saindo...");
                 /* Implementar o salvamento de arquivos aqui */
+                saveAlunosOnFile(&listAlunos);
                 puts("Arquivos salvos com sucesso.");
                 stayOnLoop = False;
                 break;
@@ -134,14 +145,14 @@ int main() {
             }
         }
     }
-    puts("\n\nPrograma encerrado pelo usuario!\n\n");
+    puts("\n\nPrograma encerrado pelo usuario!\n");
 }
 
 
 void startFiles() {
-    alunosFile = fopen("alunos.dat", "r+b");
+    alunosFile = fopen(ARQ_ALUNOS, "r+b");
     if (alunosFile == NULL) {
-        alunosFile = fopen("alunos.dat", "w+b");
+        alunosFile = fopen(ARQ_ALUNOS, "w+b");
         if (alunosFile == NULL) {
             fprintf(stderr, "Impossivel criar arquivo de alunos.");
             exit(1);
@@ -150,9 +161,9 @@ void startFiles() {
     fclose(alunosFile);
 
 
-    disciplinasFile = fopen("disciplinas.dat", "r+b");
+    disciplinasFile = fopen(ARQ_DISCIPLINAS, "r+b");
     if (disciplinasFile == NULL) {
-        disciplinasFile = fopen("disciplinas.dat", "w+b");
+        disciplinasFile = fopen(ARQ_DISCIPLINAS, "w+b");
         if (disciplinasFile == NULL) {
             fprintf(stderr, "Impossivel criar arquivo de disciplinas.");
             exit(1);
@@ -161,9 +172,9 @@ void startFiles() {
     fclose(disciplinasFile);
 
 
-    periodoFiles = fopen("periodos.dat", "r+b");
+    periodoFiles = fopen(ARQ_PERIODOS, "r+b");
     if (periodoFiles == NULL) {
-        periodoFiles = fopen("periodos.dat", "w+b");
+        periodoFiles = fopen(ARQ_PERIODOS, "w+b");
         if (periodoFiles == NULL) {
             fprintf(stderr, "Impossivel criar arquivo de periodos.");
             exit(1);
@@ -178,7 +189,7 @@ int menu(){
     printf("1 --> Ir para aba de alunos.\n");
     printf("2 --> Ir para aba de disciplinas.\n");
     printf("3 --> Ir para aba de periodos.\n");
-    printf("4 --> Listar disciplina de aluno por periodo.\n");
+    printf("4 --> Listar disciplinas de aluno por periodo.\n");
     printf("5 --> Listar alunos de disciplina por periodo.\n");
     printf("6 --> Sair do sistema.\n");
     int decisao;
@@ -278,8 +289,8 @@ void getAlunoData(ALUNO *aluno) {
     }
 }
 
-void saveAlunos(LIST_ALUNO *list_of_alunos) {
-    alunosFile = fopen("alunos.dat", "a+b");
+void saveAlunosOnFile(LIST_ALUNO *list_of_alunos) {
+    alunosFile = fopen(ARQ_ALUNOS, "wb");
     if (alunosFile == NULL) {
         puts("Nao foi possivel abrir o arquivo de alunos.");
         exit(1);
@@ -334,4 +345,29 @@ int sureDeleteData() { /*Verifica se o usuario realmente quer deletar o dado*/
     return retorno;
 }
 
+void getAlunosFromFile(LIST_ALUNO *list_of_alunos) {
+    ALUNO aluno;
+    if ((alunosFile = fopen(ARQ_ALUNOS, "rb")) == NULL){
+        printf("O arquivo %s nao existe ou nao pode ser aberto.\n", ARQ_ALUNOS);
+        exit(1);
+    }
+    rewind(alunosFile);
+    while((fread(&aluno, sizeof(ALUNO), 1,alunosFile)) == 1) {
+        insert_end_aluno(list_of_alunos, aluno);
+    }
+    fclose(alunosFile);
+}
+
+int isFileEmpty(FILE *file, char *filename) {
+    if ((file = fopen(filename, "rb"))==NULL){
+        puts("Erro! Nao foi possivel abrir o arquivo!");
+        exit(1);
+    }
+    if (fgetc(file)!=EOF){
+        fclose(file);
+        return False;
+    }
+    fclose(file);
+    return True;
+}
 

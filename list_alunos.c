@@ -181,13 +181,16 @@ void del_last_aluno(LIST_TYPE *lista) {
 
 int query_aluno_by_code(LIST_TYPE *lista, char *code) { /*Procura um aluno pelo code e retorna a posição do nó na lista*/
     NO *aux = lista->start;
-    if (aux == NULL){
+    if (aux == NULL) {
         return -1;
     }
     for (int i = 0; i < lista->len; i++) {
         int teste = strcmp(code, (aux->aluno).codigo);
         if (!teste){
             return i;
+        }
+        if (aux->next != NULL)  {
+            aux = aux->next;
         }
     }
     return -1;
