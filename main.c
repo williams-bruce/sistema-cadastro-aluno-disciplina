@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include "list_alunos.c"
 #include "list_disciplinas.c"
+#include "list_periodos.c"
 #define True 1
 #define False 0
 #define ARQ_ALUNOS "alunos.dat"
@@ -12,7 +13,7 @@
 
 FILE *alunosFile;
 FILE *disciplinasFile;
-FILE *periodoFiles;
+FILE *periodosFile;
 
 
 void startFiles();
@@ -22,22 +23,36 @@ int menuAlunos();
 int menuDisciplinas();
 int menuPeriodos();
 void getAlunoData(ALUNO *aluno);
+void getPeriodoData(PERIODO *periodo);
 void saveAlunosOnFile(LIST_ALUNO *list_of_alunos);
+void savePeriodosOnFile(LIST_PERIODO *list_of_periodos);
 void printAluno(int contador, ALUNO aluno);
+void printPeriodo(int contador, PERIODO periodo);
 void continuar();
 int sureDeleteData();
 void getAlunosFromFile(LIST_ALUNO *list_of_alunos);
+void getPeriodosFromFile(LIST_PERIODO *list_of_periodos);
 int isFileEmpty(FILE *file, char *filename);
+int okPeriodoFormat(char *codigo_periodo);
 
 
 int main() {
     LIST_ALUNO listAlunos;
     start_list_aluno(&listAlunos);
 
+    LIST_PERIODO listPeriodos;
+    start_list_periodo(&listPeriodos);
+
     startFiles();
+
     if (!isFileEmpty(alunosFile, ARQ_ALUNOS)) {
         getAlunosFromFile(&listAlunos);
     }
+
+    if (!isFileEmpty(periodosFile, ARQ_PERIODOS)) {
+        getPeriodosFromFile(&listPeriodos);
+    }
+
     cls();
     printf("Bem vindo ao sistema de cadastro de alunos, disciplinas e periodos.\n\n");
 
@@ -116,7 +131,72 @@ int main() {
                 puts("Falta implementar menu de disciplinas");
                 break;
             }
-            case 3:{
+            case 3:{ /*ABA DE PERÍODOS*/
+                int stayOnPeriodo = True;
+                while(stayOnPeriodo){
+                    cls();
+                    switch(menuPeriodos()){
+                        case 1:{ /*CADASTRAR PERIODO*/
+                            cls();
+                            PERIODO periodo;
+                            getPeriodoData(&periodo);
+                            insert_end_periodo(&listPeriodos, periodo);
+                            puts("Periodo cadastrado com sucesso!\n");
+                            continuar();
+                            break;
+                        }
+                        case 2:{ /*LISTAR PERIODOS*/
+                            cls();
+                            if (listPeriodos.len == 0) {
+                                puts("Nao ha periodos cadastrados!\n");
+                                continuar();
+                                break;
+                            }
+                            printf("Periodos cadastrados: \n\n");
+                            printf("nr    Periodo\n");
+                            for(int i = 0; i<listPeriodos.len; i++){
+                                PERIODO periodoToPrint = periodo_at_position(&listPeriodos, i);
+                                printPeriodo(i, periodoToPrint);
+                            }
+                            puts("\n");
+                            continuar();
+                            break;
+                        }
+                        case 3:{ /*REMOVER PERIODO*/
+                            char periodoToRemove[50];
+                            puts("Digite o codigo do periodo a ser removido: ");
+                            fflush(stdin);
+                            gets(periodoToRemove);
+                            cls();
+                            int position = query_periodo_by_code(&listPeriodos, periodoToRemove);
+                            if (position == -1){
+                                printf("O periodo \"%s\" nao esta cadastrado. Tente novamente com um periodo cadastrado.\n\n", periodoToRemove);
+                                continuar();
+                                break;
+                            }
+                            printf("Voce pretende apagar os dados do periodo:\n");
+                            printPeriodo(position, periodo_at_position(&listPeriodos, position));
+                            putchar('\n');
+                            if (sureDeleteData()){
+                                del_position_periodo(&listPeriodos, position);
+                                puts("Periodo removido com sucesso!\n\n");
+                                continuar();
+                                break;
+                            }
+                            break;
+                        }
+                        case 4:{ /*RETORNAR AO MENU INICIAL*/
+                            stayOnPeriodo = False;
+                            cls();
+                            break;
+                        }
+                        default:{
+                            puts("Opcao invalida. Tente novamente.");
+                            continuar();
+                            break;
+                        }
+                    }
+                }
                 puts("Falta implementar menu de periodos.");
                 break;
             }
@@ -132,6 +212,7 @@ int main() {
                 puts("Salvando arquivos e saindo...");
                 /* Implementar o salvamento de arquivos aqui */
                 saveAlunosOnFile(&listAlunos);
+                savePeriodosOnFile(&listPeriodos);
                 puts("Arquivos salvos com sucesso.");
                 stayOnLoop = False;
                 break;
@@ -172,15 +253,15 @@ void startFiles() {
     fclose(disciplinasFile);
 
 
-    periodoFiles = fopen(ARQ_PERIODOS, "r+b");
-    if (periodoFiles == NULL) {
-        periodoFiles = fopen(ARQ_PERIODOS, "w+b");
-        if (periodoFiles == NULL) {
+    periodosFile = fopen(ARQ_PERIODOS, "r+b");
+    if (periodosFile == NULL) {
+        periodosFile = fopen(ARQ_PERIODOS, "w+b");
+        if (periodosFile == NULL) {
             fprintf(stderr, "Impossivel criar arquivo de periodos.");
             exit(1);
         }
     }
-    fclose(periodoFiles);
+    fclose(periodosFile);
 }
 
 int menu(){
@@ -289,6 +370,53 @@ void getAlunoData(ALUNO *aluno) {
     }
 }
 
+void getPeriodoData(PERIODO *periodo) {
+    while(True) {
+        char codigo[50];
+        puts("Digite o codigo do perido (formato: AAAA.X, ex: 2021.1):");
+        fflush(stdin);
+        gets(codigo);
+        if (!(okPeriodoFormat(codigo))) {
+            continuar();
+            cls();
+            continue;
+        }
+        strcpy(periodo->codigo, codigo);
+        cls();
+        break;
+    }
+}
+
+int okPeriodoFormat(char *codigo_periodo) {
+    if (strlen(codigo_periodo) != 6) {
+        puts("Codigo fora do padrao especificado.");
+        return 0;
+    }
+    if (codigo_periodo[5] != '1') {
+        printf("%s\n", codigo_periodo);
+        printf("%c\n", codigo_periodo[5]);
+        puts("Em um ano so pode haver periodo 1 ou periodo 2.");
+        return 0;
+    }
+    if (codigo_periodo[5] != '2') {
+        printf("%s\n", codigo_periodo);
+        printf("%c\n", codigo_periodo[5]);
+        puts("Em um ano so pode haver periodo 1 ou periodo 2.");
+        return 0;
+    }
+    if (codigo_periodo[4] != '.'){
+        puts("Deve haver um ponto separando o ano do periodo considerado.");
+        return 0;
+    }
+    for (int i = 0; i < 4; i++){
+        if (!(isdigit(codigo_periodo[i]))){
+            puts("Os caracteres do ano devem ser numeros.");
+            return 0;
+        }
+    }
+    return 1;
+}
+
 void saveAlunosOnFile(LIST_ALUNO *list_of_alunos) {
     alunosFile = fopen(ARQ_ALUNOS, "wb");
     if (alunosFile == NULL) {
@@ -305,8 +433,28 @@ void saveAlunosOnFile(LIST_ALUNO *list_of_alunos) {
     fclose(alunosFile);
 }
 
+void savePeriodosOnFile(LIST_PERIODO *list_of_periodos) {
+    periodosFile = fopen(ARQ_PERIODOS, "wb");
+    if (periodosFile == NULL) {
+        puts("Nao foi possivel abrir o arquivo de periodos.");
+        exit(1);
+    }
+    for (int i = 0; i < list_of_periodos->len; i++){
+        PERIODO periodo = periodo_at_position(list_of_periodos, i);
+        if (fwrite(&periodo, sizeof(periodo), 1, periodosFile) != 1) {
+            puts("Falha ao tentar escrever o registro do periodo.");
+            exit(1);
+        }
+    }
+    fclose(periodosFile);
+}
+
 void printAluno(int contador, ALUNO aluno) { /* printa um aluno na tela com sua posição e nome */
     printf("%d --> %5s   %30s   %11s\n", contador+1, aluno.codigo ,aluno.nome, aluno.cpf);
+}
+
+void printPeriodo(int contador, PERIODO periodo) { /* printa um periodo na tela com sua posição e codigo */
+    printf("%d --> %6s\n", contador+1, periodo.codigo);
 }
 
 void continuar() {
@@ -356,6 +504,19 @@ void getAlunosFromFile(LIST_ALUNO *list_of_alunos) {
         insert_end_aluno(list_of_alunos, aluno);
     }
     fclose(alunosFile);
+}
+
+void getPeriodosFromFile(LIST_PERIODO *list_of_periodos) {
+    PERIODO periodo;
+    if ((periodosFile = fopen(ARQ_PERIODOS, "rb")) == NULL){
+        printf("O arquivo %s nao existe ou nao pode ser aberto.\n", ARQ_ALUNOS);
+        exit(1);
+    }
+    rewind(alunosFile);
+    while((fread(&periodo, sizeof(ALUNO), 1,periodosFile)) == 1) {
+        insert_end_periodo(list_of_periodos, periodo);
+    }
+    fclose(periodosFile);
 }
 
 int isFileEmpty(FILE *file, char *filename) {
