@@ -197,7 +197,6 @@ int main() {
                         }
                     }
                 }
-                puts("Falta implementar menu de periodos.");
                 break;
             }
             case 4:{
@@ -392,13 +391,7 @@ int okPeriodoFormat(char *codigo_periodo) {
         puts("Codigo fora do padrao especificado.");
         return 0;
     }
-    if (codigo_periodo[5] != '1') {
-        printf("%s\n", codigo_periodo);
-        printf("%c\n", codigo_periodo[5]);
-        puts("Em um ano so pode haver periodo 1 ou periodo 2.");
-        return 0;
-    }
-    if (codigo_periodo[5] != '2') {
+    if (codigo_periodo[5] != '1' && codigo_periodo[5] != '2') {
         printf("%s\n", codigo_periodo);
         printf("%c\n", codigo_periodo[5]);
         puts("Em um ano so pode haver periodo 1 ou periodo 2.");
