@@ -3,9 +3,9 @@
 #define LIST_TYPE LIST_DISCIPLINA
 
 typedef struct DISC {
-    int codigo;
-    char nome[48];
-    char professor[48];
+    char codigo[5];
+    char nome[50];
+    char professor[50];
     int qtde_creditos;
 } DATA_TYPE;
 
@@ -110,26 +110,26 @@ void insert_at_position_disciplina(LIST_TYPE *lista, DATA_TYPE disciplina, int p
     }
 }
 
-// DATA_TYPE value_at_position(LIST_TYPE *lista, int position) {
-//     int aux = 0;
-//     NO *no_aux = lista->start;
+DATA_TYPE disciplina_at_position(LIST_TYPE *lista, int position) {
+    int aux = 0;
+    NO *no_aux = lista->start;
 
-//     if(position < 0) {
-//         position = lista->len + position;
-//     }
-//     if (position >= lista->len || position < 0) {
-//         fprintf(stderr, "Index list out of range.");
-//         exit(1);
-//     }
-//     while (aux <= position){
-//         if (aux == position) {
-//             break;
-//         }
-//         no_aux = no_aux->next;
-//         aux++;
-//     }
-//     return no_aux->disciplina;
-// }
+    if(position < 0) {
+        position = lista->len + position;
+    }
+    if (position >= lista->len || position < 0) {
+        fprintf(stderr, "Index list out of range.");
+        exit(1);
+    }
+    while (aux <= position){
+        if (aux == position) {
+            break;
+        }
+        no_aux = no_aux->next;
+        aux++;
+    }
+    return no_aux->disciplina;
+}
 
 void print_list_disciplina(LIST_TYPE *lista) {
     NO *aux = lista->start;
@@ -172,12 +172,51 @@ void del_position_disciplina(LIST_TYPE *lista, int position) {
     lista->len--;
 }
 
-void remove_first_disciplina(LIST_TYPE *lista) {
+void del_first_disciplina(LIST_TYPE *lista) {
     del_position_disciplina(lista, 0);
 }
 
-void remove_last_disciplina(LIST_TYPE *lista) {
+void del_last_disciplina(LIST_TYPE *lista) {
     del_position_disciplina(lista, lista->len - 1);
+}
+
+int query_disciplina_by_codigo(LIST_TYPE *lista, char *codigo) {
+    NO *aux = lista->start;
+    if (aux == NULL) {
+        return -1;
+    }
+    for (int i = 0; i < lista->len; i++) {
+        int teste = strcmp(codigo, (aux->disciplina).codigo);
+        if (!(teste)) {
+            return i;
+        }
+        if (aux->next != NULL) {
+            aux = aux->next;
+        }
+    }
+    return -1;
+}
+
+int query_disciplina_by_name(LIST_TYPE *lista, char *nome) {
+    NO *aux = lista->start;
+    if (aux == NULL) {
+        return -1;
+    }
+    for (int i = 0; i < lista->len; i++) {
+        char name_temp[50];
+        char name_test[50];
+        strcpy(name_temp, strlwr(nome));
+        strcpy(name_test, strlwr((aux->disciplina).nome));
+        
+        int teste = strcmp(name_temp, name_test);
+        if (!(teste)) {
+            return i;
+        }
+        if (aux->next != NULL) {
+            aux = aux->next;
+        }
+    }
+    return -1;
 }
 
 

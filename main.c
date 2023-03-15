@@ -4,16 +4,16 @@
 #include <ctype.h>
 #include "list_alunos.c"
 #include "list_disciplinas.c"
-#include "list_periodos.c"
+#include "list_matriculas.c"
 #define True 1
 #define False 0
 #define ARQ_ALUNOS "alunos.dat"
 #define ARQ_DISCIPLINAS "disciplinas.dat"
-#define ARQ_PERIODOS "periodos.dat"
+#define ARQ_MATRICULAS "matriculas.dat"
 
 FILE *alunosFile;
 FILE *disciplinasFile;
-FILE *periodosFile;
+FILE *matriculasFile;
 
 
 void startFiles();
@@ -21,40 +21,52 @@ void cls();
 int menu();
 int menuAlunos();
 int menuDisciplinas();
-int menuPeriodos();
+int menuMatriculas();
 void getAlunoData(ALUNO *aluno);
-void getPeriodoData(PERIODO *periodo);
+void getMatriculaData(MATRICULA *matricula, LIST_ALUNO *listAluno, LIST_DISCIPLINA *listDisciplina);
+void getDisciplinaData(DISCIPLINA *disciplina);
 void saveAlunosOnFile(LIST_ALUNO *list_of_alunos);
-void savePeriodosOnFile(LIST_PERIODO *list_of_periodos);
+void saveDisciplinasOnFile(LIST_DISCIPLINA *list_of_disciplinas);
+void saveMatriculasOnFile(LIST_MATRICULA *list_of_matriculas);
 void printAluno(int contador, ALUNO aluno);
-void printPeriodo(int contador, PERIODO periodo);
+void printDisciplina(int contador, DISCIPLINA Disciplina);
+// void printMatricula(int contador, MATRICULA matricula);
 void continuar();
 int sureDeleteData();
 void getAlunosFromFile(LIST_ALUNO *list_of_alunos);
-void getPeriodosFromFile(LIST_PERIODO *list_of_periodos);
+void getDisciplinasFromFile(LIST_DISCIPLINA *list_of_disciplinas);
+void getMatriculasFromFile(LIST_MATRICULA *list_of_matriculas);
 int isFileEmpty(FILE *file, char *filename);
-int okPeriodoFormat(char *codigo_periodo);
+int _okPeriodoFormat(char *codigo_periodo);
+void getInfoMatriculaAluno(LIST_MATRICULA *list_of_matriculas, char *aluno, char *periodo);
+void printDisciplinasAluno(LIST_MATRICULA *list_of_matriculas, char *aluno, char *periodo);
+
 
 
 int main() {
     LIST_ALUNO listAlunos;
     start_list_aluno(&listAlunos);
 
-    LIST_PERIODO listPeriodos;
-    start_list_periodo(&listPeriodos);
+    LIST_DISCIPLINA listDisciplinas;
+    start_list_disciplina(&listDisciplinas);
+
+    LIST_MATRICULA listMatriculas;
+    start_list_matricula(&listMatriculas);
 
     startFiles();
 
     if (!isFileEmpty(alunosFile, ARQ_ALUNOS)) {
         getAlunosFromFile(&listAlunos);
     }
-
-    if (!isFileEmpty(periodosFile, ARQ_PERIODOS)) {
-        getPeriodosFromFile(&listPeriodos);
+    if (!isFileEmpty(disciplinasFile, ARQ_DISCIPLINAS)) {
+        getDisciplinasFromFile(&listDisciplinas);
+    }
+    if (!isFileEmpty(matriculasFile, ARQ_MATRICULAS)) {
+        getMatriculasFromFile(&listMatriculas);
     }
 
     cls();
-    printf("Bem vindo ao sistema de cadastro de alunos, disciplinas e periodos.\n\n");
+    printf("Bem vindo ao sistema de cadastro de alunos, disciplinas e Matriculas.\n\n");
 
     int stayOnLoop = True;
     while(stayOnLoop) {
@@ -127,66 +139,62 @@ int main() {
                 }
                 break;
             }
-            case 2:{
-                puts("Falta implementar menu de disciplinas");
-                break;
-            }
-            case 3:{ /*ABA DE PERÍODOS*/
-                int stayOnPeriodo = True;
-                while(stayOnPeriodo){
+            case 2:{ /*ABA DE DISCIPLINAS*/
+                int stayOnDisciplina = True;
+                while(stayOnDisciplina) {
                     cls();
-                    switch(menuPeriodos()){
-                        case 1:{ /*CADASTRAR PERIODO*/
+                    switch(menuDisciplinas()) {
+                        case 1: {
                             cls();
-                            PERIODO periodo;
-                            getPeriodoData(&periodo);
-                            insert_end_periodo(&listPeriodos, periodo);
-                            puts("Periodo cadastrado com sucesso!\n");
+                            DISCIPLINA disciplina;
+                            getDisciplinaData(&disciplina);
+                            insert_end_disciplina(&listDisciplinas, disciplina);
+                            puts("Disciplina cadastrado com sucesso!\n");
                             continuar();
                             break;
                         }
-                        case 2:{ /*LISTAR PERIODOS*/
+                        case 2:{ /*LISTAR DISCIPLINAS*/
                             cls();
-                            if (listPeriodos.len == 0) {
-                                puts("Nao ha periodos cadastrados!\n");
+                            if (listDisciplinas.len == 0) {
+                                puts("Nao ha disciplinas cadastrados!\n");
                                 continuar();
                                 break;
                             }
-                            printf("Periodos cadastrados: \n\n");
-                            printf("nr    Periodo\n");
-                            for(int i = 0; i<listPeriodos.len; i++){
-                                PERIODO periodoToPrint = periodo_at_position(&listPeriodos, i);
-                                printPeriodo(i, periodoToPrint);
+                            printf("Disciplinas cadastrados: \n\n");
+                            printf("nr    Codigo                     Nome              Professor        Creditos\n");
+                            for(int i = 0; i<listDisciplinas.len; i++){
+                                DISCIPLINA disciplinaToPrint = disciplina_at_position(&listDisciplinas, i);
+                                printDisciplina(i, disciplinaToPrint);
                             }
                             puts("\n");
                             continuar();
                             break;
                         }
-                        case 3:{ /*REMOVER PERIODO*/
-                            char periodoToRemove[50];
-                            puts("Digite o codigo do periodo a ser removido: ");
+                        case 3: { /*REMOVER DISCIPLINA*/
+                            char disciplinaToRemove[50];
+                            puts("Digite o codigo da disciplina a ser removida: ");
                             fflush(stdin);
-                            gets(periodoToRemove);
+                            gets(disciplinaToRemove);
                             cls();
-                            int position = query_periodo_by_code(&listPeriodos, periodoToRemove);
+                            int position = query_disciplina_by_codigo(&listDisciplinas, disciplinaToRemove);
                             if (position == -1){
-                                printf("O periodo \"%s\" nao esta cadastrado. Tente novamente com um periodo cadastrado.\n\n", periodoToRemove);
+                                printf("A disciplina \"%s\" nao esta cadastrada. Tente novamente com uma disciplina cadastrada.\n\n", disciplinaToRemove);
                                 continuar();
                                 break;
                             }
-                            printf("Voce pretende apagar os dados do periodo:\n");
-                            printPeriodo(position, periodo_at_position(&listPeriodos, position));
+                            printf("Voce pretende apagar os dados da disciplina:\n");
+                            printDisciplina(position, disciplina_at_position(&listDisciplinas, position));
                             putchar('\n');
                             if (sureDeleteData()){
-                                del_position_periodo(&listPeriodos, position);
-                                puts("Periodo removido com sucesso!\n\n");
+                                del_position_disciplina(&listDisciplinas, position);
+                                puts("Disciplina removida com sucesso!\n\n");
                                 continuar();
                                 break;
                             }
                             break;
                         }
                         case 4:{ /*RETORNAR AO MENU INICIAL*/
-                            stayOnPeriodo = False;
+                            stayOnDisciplina = False;
                             cls();
                             break;
                         }
@@ -199,20 +207,65 @@ int main() {
                 }
                 break;
             }
-            case 4:{
-                puts("Falta implementar menu.");
+            case 3:{ /*ABA DE MATRICULAS*/
+                int stayOnMatricula = True;
+                while(stayOnMatricula) {
+                    cls();
+                    switch (menuMatriculas()) {
+                        case 1:{ /* Realizar matricula de aluno em disciplina.*/
+                            cls();
+                            MATRICULA matricula;
+                            getMatriculaData(&matricula, &listAlunos, &listDisciplinas);
+                            insert_end_matricula(&listMatriculas, matricula);
+                            puts("Aluno matriculado com sucesso.");
+                            continuar();
+                            break;
+                        }
+                        case 2:{ /* Listar disciplinas de aluno por periodo.*/
+                            char aluno[50];
+                            char periodo[50];
+                            getInfoMatriculaAluno(&listMatriculas, aluno, periodo);
+                            printDisciplinasAluno(&listMatriculas, aluno, periodo);
+                            continuar();
+                            break;
+                        }
+                        case 3:{ /* Listar alunos de disciplina por Matricula.*/
+
+                            break;
+                        }
+                        case 4:{ /*Remover matricula de aluno em disciplina.*/
+
+                            break;
+                        }
+                        case 5:{ /*RETORNAR AO MENU INICIAL*/
+                            stayOnMatricula = False;
+                            cls();
+                            break;
+                        }
+                        default:{
+                            puts("Opcao invalida. Tente novamente.");
+                            continuar();
+                            break;
+                        }
+                    }
+                }
                 break;
             }
-            case 5:{
-                puts("Falta implementar menu.");
-                break;
-            }
-            case 6:{ /*Sair do programa*/
-                puts("Salvando arquivos e saindo...");
-                /* Implementar o salvamento de arquivos aqui */
+            case 4:{ /*Sair do programa*/
+                cls();
+                puts("Salvando arquivos...");
+                puts("Salvando arquivo de alunos...");
                 saveAlunosOnFile(&listAlunos);
-                savePeriodosOnFile(&listPeriodos);
-                puts("Arquivos salvos com sucesso.");
+                puts("Arquivo de alunos salvo com sucesso!");
+
+                puts("Salvando arquivo de disciplinas...");
+                saveDisciplinasOnFile(&listDisciplinas);
+                puts("Arquivo de disciplinas salvo com sucesso!");
+
+                puts("Salvando arquivo de matriculas...");
+                saveMatriculasOnFile(&listMatriculas);
+                puts("Arquivo de matriculas salvo com sucesso!");
+                puts("Arquivos salvos com sucesso!");
                 stayOnLoop = False;
                 break;
             }
@@ -252,15 +305,15 @@ void startFiles() {
     fclose(disciplinasFile);
 
 
-    periodosFile = fopen(ARQ_PERIODOS, "r+b");
-    if (periodosFile == NULL) {
-        periodosFile = fopen(ARQ_PERIODOS, "w+b");
-        if (periodosFile == NULL) {
-            fprintf(stderr, "Impossivel criar arquivo de periodos.");
+    matriculasFile = fopen(ARQ_MATRICULAS, "r+b");
+    if (matriculasFile == NULL) {
+        matriculasFile = fopen(ARQ_MATRICULAS, "w+b");
+        if (matriculasFile == NULL) {
+            fprintf(stderr, "Impossivel criar arquivo de matriculas.");
             exit(1);
         }
     }
-    fclose(periodosFile);
+    fclose(matriculasFile);
 }
 
 int menu(){
@@ -268,10 +321,8 @@ int menu(){
     puts("O que deseja fazer?");
     printf("1 --> Ir para aba de alunos.\n");
     printf("2 --> Ir para aba de disciplinas.\n");
-    printf("3 --> Ir para aba de periodos.\n");
-    printf("4 --> Listar disciplinas de aluno por periodo.\n");
-    printf("5 --> Listar alunos de disciplina por periodo.\n");
-    printf("6 --> Sair do sistema.\n");
+    printf("3 --> Ir para aba de matriculas.\n");
+    printf("4 --> Sair do sistema.\n");
     int decisao;
     fflush(stdin);
     printf("\nDigite o numero de sua escolha: ");
@@ -295,7 +346,7 @@ int menuAlunos() {
 }
 
 int menuDisciplinas() {
-    puts("********** ABA DE DISCIPLINAS **********");
+    puts("********** ABA DE DISCIPLINAS **********\n");
     puts("O que deseja fazer?");
     puts("1 --> Cadastrar disciplina.");
     puts("2 --> Listar disciplinas cadastradas.");
@@ -303,22 +354,23 @@ int menuDisciplinas() {
     puts("4 --> Voltar ao menu inicial.");
     int decisao;
     fflush(stdin);
-    printf("Digite o numero de sua escolha: ");
+    printf("\nDigite o numero de sua escolha: ");
     scanf("%d", &decisao);
     cls();
     return decisao;
 }
 
-int menuPeriodos() {
-    puts("********** ABA DE PERIODOS **********");
+int menuMatriculas() {
+    puts("********** ABA DE MatriculaS **********\n");
     puts("O que deseja fazer?");
-    puts("1 --> Cadastrar Periodo.");
-    puts("2 --> Listar Periodos cadastrados.");
-    puts("3 --> Remover Periodo cadastrado.");
-    puts("4 --> Voltar ao menu inicial.");
+    puts("1 --> Realizar matricula de aluno em disciplina.");
+    puts("2 --> Listar disciplinas de aluno por Matricula.");
+    puts("3 --> Listar alunos de disciplina por Matricula.");
+    puts("4 --> Remover matricula de aluno em disciplina.");
+    puts("5 --> Voltar ao menu inicial.");
     int decisao;
     fflush(stdin);
-    printf("Digite o numero de sua escolha: ");
+    printf("\nDigite o numero de sua escolha: ");
     scanf("%d", &decisao);
     cls();
     return decisao;
@@ -369,40 +421,105 @@ void getAlunoData(ALUNO *aluno) {
     }
 }
 
-void getPeriodoData(PERIODO *periodo) {
+void getDisciplinaData(DISCIPLINA *disciplina) {
     while(True) {
         char codigo[50];
-        puts("Digite o codigo do perido (formato: AAAA.X, ex: 2021.1):");
+        puts("Digite o codigo de 4 digitos da disciplina:");
         fflush(stdin);
         gets(codigo);
-        if (!(okPeriodoFormat(codigo))) {
+        if (strlen(codigo) != 4) {
+            printf("Seu codigo deve ter 4 digitos. Tente novamente...\n");
             continuar();
             cls();
             continue;
         }
-        strcpy(periodo->codigo, codigo);
+        strcpy(disciplina->codigo, codigo);
         cls();
         break;
     }
+
+    puts("Digite o nome da disciplina:");
+    fflush(stdin);
+    gets(disciplina->nome);
+    cls();
+    
+    puts("Digite o nome do professor da disciplina:");
+    fflush(stdin);
+    gets(disciplina->professor);
+    cls();
+    
+    puts("Digite a quantidade de creditos da disciplina:");
+    fflush(stdin);
+    scanf(" %d",&(disciplina->qtde_creditos));
+    cls();
 }
 
-int okPeriodoFormat(char *codigo_periodo) {
-    if (strlen(codigo_periodo) != 6) {
+void getMatriculaData(MATRICULA *matricula, LIST_ALUNO *listAluno, LIST_DISCIPLINA *listDisciplina) {
+    while(True) {
+        char nome[50];
+        puts("Digite o nome do aluno a ser matriculado: ");
+        gets(nome);
+
+        int position = query_aluno_by_name(listAluno, nome);
+        if (position == -1) {
+            printf("O aluno %s nao esta cadastrado. Tente novamente com um aluno cadastrado...", nome);
+            continuar();
+            cls();
+            continue;
+        }
+        ALUNO aluno = aluno_at_position(listAluno, position);
+        strcpy(matricula->aluno, aluno.nome);
+        cls();
+        break;
+    }
+
+    while(True) {
+        char nome[50];
+        puts("Digite o nome da disciplina na qual o aluno sera matriculado: ");
+        gets(nome);
+
+        int position = query_disciplina_by_name(listDisciplina, nome);
+        if (position == -1) {
+            printf("A disciplina %s nao esta cadastrada. Tente novamente com uma disciplina cadastrada...", nome);
+            continuar();
+            cls();
+            continue;
+        }
+        DISCIPLINA disciplina = disciplina_at_position(listDisciplina, position);
+        strcpy(matricula->disciplina, disciplina.nome);
+        cls();
+        break;
+    }
+    
+    while(True) {
+        char periodo[50];
+        puts("Digite o periodo (formato: AAAA.X, ex: 2021.1):");
+        fflush(stdin);
+        gets(periodo);
+        if (!(_okPeriodoFormat(periodo))) {
+            continuar();
+            cls();
+            continue;
+        }
+        strcpy(matricula->periodo, periodo);
+    }
+}
+
+int _okPeriodoFormat(char *periodo) {
+    if (strlen(periodo) != 6) {
         puts("Codigo fora do padrao especificado.");
         return 0;
     }
-    if (codigo_periodo[5] != '1' && codigo_periodo[5] != '2') {
-        printf("%s\n", codigo_periodo);
-        printf("%c\n", codigo_periodo[5]);
+    if (periodo[5] != '1' && periodo[5] != '2') {
         puts("Em um ano so pode haver periodo 1 ou periodo 2.");
         return 0;
     }
-    if (codigo_periodo[4] != '.'){
+    if (periodo[4] != '.'){
         puts("Deve haver um ponto separando o ano do periodo considerado.");
         return 0;
     }
     for (int i = 0; i < 4; i++){
-        if (!(isdigit(codigo_periodo[i]))){
+        if (!(isdigit(periodo[i]))){
             puts("Os caracteres do ano devem ser numeros.");
             return 0;
         }
@@ -426,28 +543,44 @@ void saveAlunosOnFile(LIST_ALUNO *list_of_alunos) {
     fclose(alunosFile);
 }
 
-void savePeriodosOnFile(LIST_PERIODO *list_of_periodos) {
-    periodosFile = fopen(ARQ_PERIODOS, "wb");
-    if (periodosFile == NULL) {
-        puts("Nao foi possivel abrir o arquivo de periodos.");
+void saveDisciplinasOnFile(LIST_DISCIPLINA *list_of_disciplinas) {
+    disciplinasFile = fopen(ARQ_DISCIPLINAS, "wb");
+    if (disciplinasFile == NULL) {
+        puts("Nao foi possivel abrir o arquivo de disciplinas.");
         exit(1);
     }
-    for (int i = 0; i < list_of_periodos->len; i++){
-        PERIODO periodo = periodo_at_position(list_of_periodos, i);
-        if (fwrite(&periodo, sizeof(periodo), 1, periodosFile) != 1) {
-            puts("Falha ao tentar escrever o registro do periodo.");
+    for (int i = 0; i < list_of_disciplinas->len; i++){
+        DISCIPLINA disciplina = disciplina_at_position(list_of_disciplinas, i);
+        if (fwrite(&disciplina, sizeof(DISCIPLINA), 1, disciplinasFile) != 1) {
+            puts("Falha ao tentar escrever o registro do disciplina.");
             exit(1);
         }
     }
-    fclose(periodosFile);
+    fclose(disciplinasFile);
+}
+
+void saveMatriculasOnFile(LIST_MATRICULA *list_of_matriculas) {
+    matriculasFile = fopen(ARQ_MATRICULAS, "wb");
+    if (matriculasFile == NULL) {
+        puts("Nao foi possivel abrir o arquivo de Matriculas.");
+        exit(1);
+    }
+    for (int i = 0; i < list_of_matriculas->len; i++){
+        MATRICULA Matricula = matricula_at_position(list_of_matriculas, i);
+        if (fwrite(&Matricula, sizeof(MATRICULA), 1, matriculasFile) != 1) {
+            puts("Falha ao tentar escrever o registro do Matricula.");
+            exit(1);
+        }
+    }
+    fclose(matriculasFile);
 }
 
 void printAluno(int contador, ALUNO aluno) { /* printa um aluno na tela com sua posição e nome */
     printf("%d --> %5s   %30s   %11s\n", contador+1, aluno.codigo ,aluno.nome, aluno.cpf);
 }
 
-void printPeriodo(int contador, PERIODO periodo) { /* printa um periodo na tela com sua posição e codigo */
-    printf("%d --> %6s\n", contador+1, periodo.codigo);
+void printDisciplina(int contador, DISCIPLINA disciplina) { /* printa uma disciplina na tela com sua posição e nome */
+    printf("%d --> %4s   %30s   %30s  %4d\n", contador+1, disciplina.codigo ,disciplina.nome, disciplina.professor, disciplina.qtde_creditos);
 }
 
 void continuar() {
@@ -499,17 +632,30 @@ void getAlunosFromFile(LIST_ALUNO *list_of_alunos) {
     fclose(alunosFile);
 }
 
-void getPeriodosFromFile(LIST_PERIODO *list_of_periodos) {
-    PERIODO periodo;
-    if ((periodosFile = fopen(ARQ_PERIODOS, "rb")) == NULL){
+void getDisciplinasFromFile(LIST_DISCIPLINA *list_of_disciplinas) {
+    DISCIPLINA disciplina;
+    if ((disciplinasFile = fopen(ARQ_DISCIPLINAS, "rb")) == NULL){
+        printf("O arquivo %s nao existe ou nao pode ser aberto.\n", ARQ_DISCIPLINAS);
+        exit(1);
+    }
+    rewind(disciplinasFile);
+    while((fread(&disciplina, sizeof(DISCIPLINA), 1,disciplinasFile)) == 1) {
+        insert_end_disciplina(list_of_disciplinas, disciplina);
+    }
+    fclose(disciplinasFile);
+}
+
+void getMatriculasFromFile(LIST_MATRICULA *list_of_matriculas) {
+    MATRICULA matricula;
+    if ((matriculasFile = fopen(ARQ_MATRICULAS, "rb")) == NULL){
         printf("O arquivo %s nao existe ou nao pode ser aberto.\n", ARQ_ALUNOS);
         exit(1);
     }
     rewind(alunosFile);
-    while((fread(&periodo, sizeof(ALUNO), 1,periodosFile)) == 1) {
-        insert_end_periodo(list_of_periodos, periodo);
+    while((fread(&matricula, sizeof(MATRICULA), 1,matriculasFile)) == 1) {
+        insert_end_matricula(list_of_matriculas, matricula);
     }
-    fclose(periodosFile);
+    fclose(matriculasFile);
 }
 
 int isFileEmpty(FILE *file, char *filename) {
@@ -525,3 +671,62 @@ int isFileEmpty(FILE *file, char *filename) {
     return True;
 }
 
+void getInfoMatriculaAluno(LIST_MATRICULA *list_of_matriculas, char *aluno, char *periodo) {
+    while(True) {
+        puts("Digite o nome do aluno: ");
+        gets(aluno);
+        int position = query_matricula_by_aluno(list_of_matriculas, aluno);
+        if (position == -1) {
+            printf("O aluno %s nao esta cadastrado. Tente novamente com um aluno cadastrado...", aluno);
+            continuar();
+            cls();
+            continue;
+        }
+        break;
+    }
+
+    while(True) {
+        puts("Digite o periodo (formato: AAAA.X, ex: 2021.1):");
+        gets(periodo);
+        if(!(_okPeriodoFormat(periodo))) {
+            continuar();
+            cls();
+            continue;
+        }
+        int position = query_matricula_by_periodo(list_of_matriculas, periodo);
+        if (position == -1) {
+            printf("O periodo %s nao esta cadastrado. Tente novamente com um periodo cadastrado...", periodo);
+            continuar();
+            cls();
+            continue;
+        }
+        break;
+    }
+}
+
+void printDisciplinasAluno(LIST_MATRICULA *list_of_matriculas, char *aluno, char *periodo) {
+    int contador = 1;
+    NO_MATRICULA *aux = list_of_matriculas->start;
+
+    char name_temp_aluno[50];
+    char name_test_aluno[50];
+    char name_temp_periodo[50];
+    char name_test_periodo[50];
+    
+    strcpy(name_temp_aluno, strlwr(aluno));
+    strcpy(name_temp_periodo, strlwr(periodo));
+
+    printf("Lista das disciplinas do aluno %s no periodo %s:\n\n", aluno, periodo);
+    printf("nr           disciplina\n");
+    for(int i = 0; i < list_of_matriculas->len; i++) {
+        strcpy(name_test_aluno, strlwr((aux->matricula).aluno));
+        strcpy(name_test_periodo, strlwr((aux->matricula).periodo));
+
+        if (!(strcmp(name_temp_aluno, name_test_aluno)) && !(strcmp(name_temp_periodo, name_test_periodo))) {
+            printf("%d --> %20s", contador, (aux->matricula).disciplina);
+            contador++;
+        }
+        aux = aux->next;
+    }
+    putchar('\n');
+}
