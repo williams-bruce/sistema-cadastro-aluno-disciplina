@@ -2,6 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#ifdef _WIN32
+    #include <Windows.h>
+#else
+    #include <unistd.n>
+#endif
 #include "list_alunos.c"
 #include "list_disciplinas.c"
 #include "list_matriculas.c"
@@ -30,7 +35,6 @@ void saveDisciplinasOnFile(LIST_DISCIPLINA *list_of_disciplinas);
 void saveMatriculasOnFile(LIST_MATRICULA *list_of_matriculas);
 void printAluno(int contador, ALUNO aluno);
 void printDisciplina(int contador, DISCIPLINA Disciplina);
-// void printMatricula(int contador, MATRICULA matricula);
 void continuar();
 int sureDeleteData();
 void getAlunosFromFile(LIST_ALUNO *list_of_alunos);
@@ -40,7 +44,6 @@ int isFileEmpty(FILE *file, char *filename);
 int _okPeriodoFormat(char *codigo_periodo);
 void getInfoMatriculaAluno(LIST_MATRICULA *list_of_matriculas, char *aluno, char *periodo);
 void printDisciplinasAluno(LIST_MATRICULA *list_of_matriculas, char *aluno, char *periodo);
-
 
 
 int main() {
@@ -161,7 +164,7 @@ int main() {
                                 break;
                             }
                             printf("Disciplinas cadastrados: \n\n");
-                            printf("nr    Codigo                     Nome              Professor        Creditos\n");
+                            printf("nr    Codigo                     Nome     %10s       Professor    %s    Creditos\n", " ", " ");
                             for(int i = 0; i<listDisciplinas.len; i++){
                                 DISCIPLINA disciplinaToPrint = disciplina_at_position(&listDisciplinas, i);
                                 printDisciplina(i, disciplinaToPrint);
@@ -186,6 +189,8 @@ int main() {
                             printDisciplina(position, disciplina_at_position(&listDisciplinas, position));
                             putchar('\n');
                             if (sureDeleteData()){
+                                printf("%d\n", listDisciplinas.len);
+                                printf("%d\n", position);
                                 del_position_disciplina(&listDisciplinas, position);
                                 puts("Disciplina removida com sucesso!\n\n");
                                 continuar();
@@ -222,6 +227,11 @@ int main() {
                             break;
                         }
                         case 2:{ /* Listar disciplinas de aluno por periodo.*/
+                            if (listMatriculas.len == 0){
+                                puts("Nao ha matriculas cadastradas. Cadastre alunos em disciplinas e periodos...");
+                                continuar();
+                                break;
+                            }
                             char aluno[50];
                             char periodo[50];
                             getInfoMatriculaAluno(&listMatriculas, aluno, periodo);
@@ -254,18 +264,26 @@ int main() {
             case 4:{ /*Sair do programa*/
                 cls();
                 puts("Salvando arquivos...");
+                Sleep(200);
                 puts("Salvando arquivo de alunos...");
+                Sleep(500);
                 saveAlunosOnFile(&listAlunos);
                 puts("Arquivo de alunos salvo com sucesso!");
+                Sleep(200);
 
                 puts("Salvando arquivo de disciplinas...");
+                Sleep(500);
                 saveDisciplinasOnFile(&listDisciplinas);
                 puts("Arquivo de disciplinas salvo com sucesso!");
+                Sleep(200);
 
                 puts("Salvando arquivo de matriculas...");
+                Sleep(500);
                 saveMatriculasOnFile(&listMatriculas);
                 puts("Arquivo de matriculas salvo com sucesso!");
-                puts("Arquivos salvos com sucesso!");
+                Sleep(200);
+                puts("Todos os arquivos foram salvos com sucesso!");
+                Sleep(1500);
                 stayOnLoop = False;
                 break;
             }
@@ -278,7 +296,7 @@ int main() {
             }
         }
     }
-    puts("\n\nPrograma encerrado pelo usuario!\n");
+    puts("\nPrograma encerrado pelo usuario!\n");
 }
 
 
