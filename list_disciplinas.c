@@ -40,7 +40,7 @@ NO *_no_at_position_disciplina(LIST_TYPE *lista, int position) {
         position = lista->len + position;
     }
     if (position >= lista->len || position < 0) {
-        printf("Index list out of range.\n");
+        printf("Index list out of range. at _no_at_position function.\n");
         exit(1);
     }
     while (aux <= position){
@@ -90,7 +90,7 @@ void insert_at_position_disciplina(LIST_TYPE *lista, DATA_TYPE disciplina, int p
         position = lista->len + position;
     }
     if (position > lista->len || position < 0) {
-        fprintf(stderr, "Index list out of range.");
+        fprintf(stderr, "Index list out of range. At insert_at_position_disciplina function");
         exit(1);
     }
     if (position == 0) {
@@ -118,7 +118,7 @@ DATA_TYPE disciplina_at_position(LIST_TYPE *lista, int position) {
         position = lista->len + position;
     }
     if (position >= lista->len || position < 0) {
-        fprintf(stderr, "Index list out of range.");
+        fprintf(stderr, "Index list out of range. At disciplina_at_position function");
         exit(1);
     }
     while (aux <= position){
@@ -148,8 +148,8 @@ void del_position_disciplina(LIST_TYPE *lista, int position) {
     if (position < 0) {
         position = lista->len + position;
     }
-    if (position >= lista->len - 1 || position < 0) {
-        fprintf(stderr, "Index list out of range.");
+    if (position >= lista->len || position < 0) {
+        fprintf(stderr, "Index list out of range. At del_position_disciplina function");
         exit(1);
     }
     if (position == 0 && lista->len == 1) {
