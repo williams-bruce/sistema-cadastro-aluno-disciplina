@@ -42,8 +42,8 @@ void getDisciplinasFromFile(LIST_DISCIPLINA *list_of_disciplinas);
 void getMatriculasFromFile(LIST_MATRICULA *list_of_matriculas);
 int isFileEmpty(FILE *file, char *filename);
 int _okPeriodoFormat(char *codigo_periodo);
-void getInfoMatriculaAluno(LIST_MATRICULA *list_of_matriculas, char *aluno, char *periodo);
-void printDisciplinasAluno(LIST_MATRICULA *list_of_matriculas, char *aluno, char *periodo);
+void getInfoMatriculaAluno(LIST_MATRICULA *list_of_matriculas, char *aluno);
+void printDisciplinasAluno(LIST_MATRICULA *list_of_matriculas, char *aluno);
 
 
 int main() {
@@ -164,7 +164,7 @@ int main() {
                                 break;
                             }
                             printf("Disciplinas cadastrados: \n\n");
-                            printf("nr    Codigo                     Nome     %10s       Professor    %s    Creditos\n", " ", " ");
+                            printf("nr    Codigo                     Nome     %10s       Professor    %5s    Creditos\n", " ", " ");
                             for(int i = 0; i<listDisciplinas.len; i++){
                                 DISCIPLINA disciplinaToPrint = disciplina_at_position(&listDisciplinas, i);
                                 printDisciplina(i, disciplinaToPrint);
@@ -222,7 +222,8 @@ int main() {
                             MATRICULA matricula;
                             getMatriculaData(&matricula, &listAlunos, &listDisciplinas);
                             insert_end_matricula(&listMatriculas, matricula);
-                            puts("Aluno matriculado com sucesso.");
+                            cls();
+                            puts("Aluno matriculado com sucesso!");
                             continuar();
                             break;
                         }
@@ -234,13 +235,18 @@ int main() {
                             }
                             char aluno[50];
                             char periodo[50];
-                            getInfoMatriculaAluno(&listMatriculas, aluno, periodo);
-                            printDisciplinasAluno(&listMatriculas, aluno, periodo);
+                            getInfoMatriculaAluno(&listMatriculas, aluno);
+                            cls();
+                            printDisciplinasAluno(&listMatriculas, aluno);
                             continuar();
                             break;
                         }
                         case 3:{ /* Listar alunos de disciplina por Matricula.*/
-
+                            if (listMatriculas.len == 0) {
+                                puts("Nao ha matriculas cadastradas. Cadastre alunos em disciplinas e periodos...");
+                                continuar();
+                                break;
+                            }
                             break;
                         }
                         case 4:{ /*Remover matricula de aluno em disciplina.*/
@@ -476,6 +482,7 @@ void getMatriculaData(MATRICULA *matricula, LIST_ALUNO *listAluno, LIST_DISCIPLI
     while(True) {
         char nome[50];
         puts("Digite o nome do aluno a ser matriculado: ");
+        fflush(stdin);
         gets(nome);
 
         int position = query_aluno_by_name(listAluno, nome);
@@ -520,6 +527,7 @@ void getMatriculaData(MATRICULA *matricula, LIST_ALUNO *listAluno, LIST_DISCIPLI
             continue;
         }
         strcpy(matricula->periodo, periodo);
+        break;
     }
 }
 
@@ -598,7 +606,7 @@ void printAluno(int contador, ALUNO aluno) { /* printa um aluno na tela com sua 
 }
 
 void printDisciplina(int contador, DISCIPLINA disciplina) { /* printa uma disciplina na tela com sua posição e nome */
-    printf("%d --> %4s   %30s   %30s  %4d\n", contador+1, disciplina.codigo ,disciplina.nome, disciplina.professor, disciplina.qtde_creditos);
+    printf("%d --> %4s   %30s   %30s  %9d\n", contador+1, disciplina.codigo ,disciplina.nome, disciplina.professor, disciplina.qtde_creditos);
 }
 
 void continuar() {
@@ -689,9 +697,10 @@ int isFileEmpty(FILE *file, char *filename) {
     return True;
 }
 
-void getInfoMatriculaAluno(LIST_MATRICULA *list_of_matriculas, char *aluno, char *periodo) {
+void getInfoMatriculaAluno(LIST_MATRICULA *list_of_matriculas, char *aluno) {
     while(True) {
         puts("Digite o nome do aluno: ");
+        fflush(stdin);
         gets(aluno);
         int position = query_matricula_by_aluno(list_of_matriculas, aluno);
         if (position == -1) {
@@ -702,46 +711,24 @@ void getInfoMatriculaAluno(LIST_MATRICULA *list_of_matriculas, char *aluno, char
         }
         break;
     }
-
-    while(True) {
-        puts("Digite o periodo (formato: AAAA.X, ex: 2021.1):");
-        gets(periodo);
-        if(!(_okPeriodoFormat(periodo))) {
-            continuar();
-            cls();
-            continue;
-        }
-        int position = query_matricula_by_periodo(list_of_matriculas, periodo);
-        if (position == -1) {
-            printf("O periodo %s nao esta cadastrado. Tente novamente com um periodo cadastrado...", periodo);
-            continuar();
-            cls();
-            continue;
-        }
-        break;
-    }
 }
 
-void printDisciplinasAluno(LIST_MATRICULA *list_of_matriculas, char *aluno, char *periodo) {
+void printDisciplinasAluno(LIST_MATRICULA *list_of_matriculas, char *aluno) {
     int contador = 1;
     NO_MATRICULA *aux = list_of_matriculas->start;
 
     char name_temp_aluno[50];
     char name_test_aluno[50];
-    char name_temp_periodo[50];
-    char name_test_periodo[50];
     
     strcpy(name_temp_aluno, strlwr(aluno));
-    strcpy(name_temp_periodo, strlwr(periodo));
 
-    printf("Lista das disciplinas do aluno %s no periodo %s:\n\n", aluno, periodo);
-    printf("nr           disciplina\n");
+    printf("Lista das disciplinas do aluno %s por periodo:\n\n", aluno);
+    printf(" nr %12s disciplina %7s Periodo \n"," ", " ");
     for(int i = 0; i < list_of_matriculas->len; i++) {
         strcpy(name_test_aluno, strlwr((aux->matricula).aluno));
-        strcpy(name_test_periodo, strlwr((aux->matricula).periodo));
 
-        if (!(strcmp(name_temp_aluno, name_test_aluno)) && !(strcmp(name_temp_periodo, name_test_periodo))) {
-            printf("%d --> %20s", contador, (aux->matricula).disciplina);
+        if (!(strcmp(name_temp_aluno, name_test_aluno))) {
+            printf("%2d %24s %15s", contador, (aux->matricula).disciplina, (aux->matricula).periodo);
             contador++;
         }
         aux = aux->next;
