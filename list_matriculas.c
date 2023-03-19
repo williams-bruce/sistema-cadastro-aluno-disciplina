@@ -202,6 +202,29 @@ int query_matricula_by_aluno(LIST_TYPE *lista, char *aluno) {
     return -1;
 }
 
+int query_matricula_by_disciplina(LIST_TYPE *lista, char *disciplina) {
+    /*Procura uma matricula pelo disciplina e retorna a posição do nó na lista. Se não existir, retorna -1 */
+    NO *aux = lista->start;
+    if (aux == NULL) {
+        return -1;
+    }
+    for (int i = 0; i < lista->len; i++) {
+        char name_temp[50];
+        char name_test[50];
+        strcpy(name_temp, strlwr(disciplina));
+        strcpy(name_test, strlwr((aux->matricula).disciplina));
+
+        int teste = strcmp(name_temp, name_test);
+        if (!teste){
+            return i;
+        }
+        if (aux->next != NULL) {
+            aux = aux->next;
+        }
+    }
+    return -1;
+}
+
 int query_matricula_by_periodo(LIST_TYPE *lista, char *periodo) {
     /*Procura uma matricula pelo periodo e retorna a posição do nó na lista. Se não existir, retorna -1 */
     NO *aux = lista->start;
@@ -224,6 +247,40 @@ int query_matricula_by_periodo(LIST_TYPE *lista, char *periodo) {
     }
     return -1;
 }
+
+int query_matricula_by_all_atributes(LIST_TYPE *lista, char *aluno, char *disciplina, char *periodo) {
+    NO *aux = lista->start;
+    if (aux == NULL) {
+        return -1;
+    }
+    char aluno_temp[50];
+    char aluno_test[50];
+    char disciplina_temp[50];
+    char disciplina_test[50];
+    char periodo_temp[50];
+    char periodo_test[50];
+    
+    for (int i = 0; i < lista->len; i++) {
+        strcpy(aluno_temp, strlwr(aluno));
+        strcpy(aluno_test, strlwr((aux->matricula).aluno));
+
+        strcpy(disciplina_temp, strlwr(disciplina));
+        strcpy(disciplina_test, strlwr((aux->matricula).disciplina));
+
+        strcpy(periodo_temp, strlwr(periodo));
+        strcpy(periodo_test, strlwr((aux->matricula).periodo));
+
+        int teste = strcmp(aluno_temp, aluno_test) + strcmp(disciplina_temp, disciplina_test) + strcmp(periodo_temp, periodo_test);
+        if (!teste){
+            return i;
+        }
+        if (aux->next != NULL) {
+            aux = aux->next;
+        }
+    }
+    return -1;
+}
+
 
 
 #undef DATA_TYPE
