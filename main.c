@@ -35,6 +35,7 @@ void saveDisciplinasOnFile(LIST_DISCIPLINA *list_of_disciplinas);
 void saveMatriculasOnFile(LIST_MATRICULA *list_of_matriculas);
 void printAluno(int contador, ALUNO aluno);
 void printDisciplina(int contador, DISCIPLINA Disciplina);
+void printMatricula(int contador, MATRICULA matricula);
 void continuar();
 int sureDeleteData();
 void getAlunosFromFile(LIST_ALUNO *list_of_alunos);
@@ -44,6 +45,7 @@ int isFileEmpty(FILE *file, char *filename);
 int _okPeriodoFormat(char *codigo_periodo);
 void getInfoMatriculaAluno(LIST_MATRICULA *list_of_matriculas, char *aluno);
 void printDisciplinasAluno(LIST_MATRICULA *list_of_matriculas, char *aluno);
+void printAlunosDisciplina(LIST_MATRICULA *list_of_matriculas, char *disciplina);
 
 
 int main() {
@@ -163,7 +165,7 @@ int main() {
                                 continuar();
                                 break;
                             }
-                            printf("Disciplinas cadastrados: \n\n");
+                            printf("Disciplinas cadastradas: \n\n");
                             printf("nr    Codigo                     Nome     %10s       Professor    %5s    Creditos\n", " ", " ");
                             for(int i = 0; i<listDisciplinas.len; i++){
                                 DISCIPLINA disciplinaToPrint = disciplina_at_position(&listDisciplinas, i);
@@ -234,23 +236,87 @@ int main() {
                                 break;
                             }
                             char aluno[50];
-                            char periodo[50];
-                            getInfoMatriculaAluno(&listMatriculas, aluno);
+                            puts("Digite o nome do aluno: ");
+                            fflush(stdin);
+                            gets(aluno);
+                            int position = query_matricula_by_aluno(&listMatriculas, aluno);
+                            if (position == -1) {
+                                printf("O aluno %s nao esta cadastrado. Tente novamente com um aluno cadastrado...", aluno);
+                                continuar();
+                                cls();
+                                break;
+                            }
                             cls();
                             printDisciplinasAluno(&listMatriculas, aluno);
                             continuar();
                             break;
                         }
-                        case 3:{ /* Listar alunos de disciplina por Matricula.*/
+                        case 3:{ /* Listar alunos de disciplina por periodo.*/
                             if (listMatriculas.len == 0) {
                                 puts("Nao ha matriculas cadastradas. Cadastre alunos em disciplinas e periodos...");
                                 continuar();
                                 break;
                             }
+                            char disciplina[50];
+                            puts("Digite o nome da disciplina:");
+                            fflush(stdin);
+                            gets(disciplina);
+                            int position = query_matricula_by_disciplina(&listMatriculas, disciplina);
+                            if (position == -1) {
+                                cls();
+                                printf("A disciplina %s nao esta cadastrada. Tente novamente com uma disciplina cadastrada...\n", disciplina);
+                                continuar();
+                                cls();
+                                break;
+                            }
+                            cls();
+                            printAlunosDisciplina(&listMatriculas, disciplina);
+                            continuar();
                             break;
                         }
                         case 4:{ /*Remover matricula de aluno em disciplina.*/
-
+                            char aluno[50];
+                            puts("Digite o nome do aluno:");
+                            fflush(stdin);
+                            gets(aluno);
+                            int alunoPosition = query_matricula_by_aluno(&listMatriculas, aluno);
+                            if (alunoPosition == -1) {
+                                cls();
+                                printf("O aluno %s nao esta matriculado em nenhuma disciplina. Tente novamente novamente...\n");
+                                continuar();
+                                cls();
+                                break;
+                            }
+                            char disciplina[50];
+                            puts("Digite o nome da disciplina:");
+                            gets(disciplina);
+                            int disciplinaPosition = query_matricula_by_disciplina(&listMatriculas, disciplina);
+                            if (disciplinaPosition == -1){
+                                printf("A disciplina %s nao esta cadastrada. Tente novamente...\n", disciplina);
+                                continuar();
+                                cls();
+                                break;
+                            }
+                            char periodo[20];
+                            puts("Digite o periodo:");
+                            gets(periodo);
+                            int periodoPosition = query_matricula_by_periodo(&listMatriculas, periodo);
+                            if (periodoPosition == -1){
+                                printf("O periodo %s nao esta cadastrado. Tente novamente...\n", periodo);
+                                continuar();
+                                cls();
+                                break;
+                            }
+                            printf("Voce pretende remover a seguinte matricula:\n");
+                            int matriculaPosition = query_matricula_by_all_atributes(&listMatriculas, aluno, disciplina, periodo);
+                            printMatricula(matriculaPosition, matricula_at_position(&listMatriculas, matriculaPosition));
+                            putchar('\n');
+                            if (sureDeleteData()){
+                                del_position_matricula(&listMatriculas, matriculaPosition);
+                                puts("Matricula removida com sucesso.");
+                                continuar();
+                                cls();
+                            }
                             break;
                         }
                         case 5:{ /*RETORNAR AO MENU INICIAL*/
@@ -609,6 +675,10 @@ void printDisciplina(int contador, DISCIPLINA disciplina) { /* printa uma discip
     printf("%d --> %4s   %30s   %30s  %9d\n", contador+1, disciplina.codigo ,disciplina.nome, disciplina.professor, disciplina.qtde_creditos);
 }
 
+void printMatricula(int contador, MATRICULA matricula) {
+    printf("%d --> %30s %30s %6s\n",contador+1, matricula.aluno, matricula.disciplina, matricula.periodo);
+}
+
 void continuar() {
     printf("Aperte <enter> para continuar...");
     fflush(stdin);
@@ -729,6 +799,29 @@ void printDisciplinasAluno(LIST_MATRICULA *list_of_matriculas, char *aluno) {
 
         if (!(strcmp(name_temp_aluno, name_test_aluno))) {
             printf("%2d %24s %15s", contador, (aux->matricula).disciplina, (aux->matricula).periodo);
+            contador++;
+        }
+        aux = aux->next;
+    }
+    putchar('\n');
+}
+
+void printAlunosDisciplina(LIST_MATRICULA *list_of_matriculas, char *disciplina) {
+    int contador = 1;
+    NO_MATRICULA *aux = list_of_matriculas->start;
+
+    char name_temp_disciplina[50];
+    char name_test_disciplina[50];
+    
+    strcpy(name_temp_disciplina, strlwr(disciplina));
+
+    printf("Lista dos alunos da disciplina %s por periodo:\n\n", disciplina);
+    printf(" nr %12s disciplina %7s Periodo \n"," ", " ");
+    for(int i = 0; i < list_of_matriculas->len; i++) {
+        strcpy(name_test_disciplina, strlwr((aux->matricula).disciplina));
+
+        if (!(strcmp(name_temp_disciplina, name_test_disciplina))) {
+            printf("%2d %24s %15s", contador, (aux->matricula).aluno, (aux->matricula).periodo);
             contador++;
         }
         aux = aux->next;
