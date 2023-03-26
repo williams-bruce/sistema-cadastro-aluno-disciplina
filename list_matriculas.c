@@ -248,6 +248,60 @@ int query_matricula_by_periodo(LIST_TYPE *lista, char *periodo) {
     return -1;
 }
 
+int query_matricula_by_aluno_and_periodo(LIST_TYPE *lista, char *aluno, char *periodo) {
+    /*Procura uma matricula pelo aluno e periodo retorna a posição do nó na lista. Se não existir, retorna -1 */
+    NO *aux = lista->start;
+    if (aux == NULL) {
+        return -1;
+    }
+    for (int i = 0; i < lista->len; i++) {
+        char aluno_temp[50];
+        char aluno_test[50];
+        char periodo_temp[50];
+        char periodo_test[50];
+        strcpy(aluno_temp, strlwr(aluno));
+        strcpy(aluno_test, strlwr((aux->matricula).aluno));
+        strcpy(periodo_temp, strlwr(periodo));
+        strcpy(periodo_test, strlwr((aux->matricula).periodo));
+
+        int teste = abs(strcmp(aluno_temp, aluno_test)) + abs(strcmp(periodo_temp, periodo_test));
+        if (!teste){
+            return i;
+        }
+        if (aux->next != NULL) {
+            aux = aux->next;
+        }
+    }
+    return -1;
+}
+
+int query_matricula_by_disciplina_and_periodo(LIST_TYPE *lista, char *disciplina, char *periodo) {
+    /*Procura uma matricula pelo disciplina e retorna a posição do nó na lista. Se não existir, retorna -1 */
+    NO *aux = lista->start;
+    if (aux == NULL) {
+        return -1;
+    }
+    for (int i = 0; i < lista->len; i++) {
+        char disciplina_temp[50];
+        char disciplina_test[50];
+        char periodo_temp[50];
+        char periodo_test[50];
+        strcpy(disciplina_temp, strlwr(disciplina));
+        strcpy(disciplina_test, strlwr((aux->matricula).disciplina));
+        strcpy(periodo_temp, strlwr(periodo));
+        strcpy(periodo_test, strlwr((aux->matricula).periodo));
+
+        int teste = abs(strcmp(disciplina_temp, disciplina_test)) + abs(strcmp(periodo_temp, periodo_test));
+        if (!teste){
+            return i;
+        }
+        if (aux->next != NULL) {
+            aux = aux->next;
+        }
+    }
+    return -1;
+}
+
 int query_matricula_by_all_atributes(LIST_TYPE *lista, char *aluno, char *disciplina, char *periodo) {
     NO *aux = lista->start;
     if (aux == NULL) {
@@ -270,7 +324,7 @@ int query_matricula_by_all_atributes(LIST_TYPE *lista, char *aluno, char *discip
         strcpy(periodo_temp, strlwr(periodo));
         strcpy(periodo_test, strlwr((aux->matricula).periodo));
 
-        int teste = strcmp(aluno_temp, aluno_test) + strcmp(disciplina_temp, disciplina_test) + strcmp(periodo_temp, periodo_test);
+        int teste = abs(strcmp(aluno_temp, aluno_test)) + abs(strcmp(disciplina_temp, disciplina_test)) + abs(strcmp(periodo_temp, periodo_test));
         if (!teste){
             return i;
         }
