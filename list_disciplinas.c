@@ -180,7 +180,7 @@ void del_last_disciplina(LIST_TYPE *lista) {
     del_position_disciplina(lista, lista->len - 1);
 }
 
-int query_disciplina_by_codigo(LIST_TYPE *lista, char *codigo) {
+int query_disciplina_by_code(LIST_TYPE *lista, char *codigo) {
     NO *aux = lista->start;
     if (aux == NULL) {
         return -1;
