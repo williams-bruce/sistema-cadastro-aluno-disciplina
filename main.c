@@ -22,6 +22,7 @@ FILE *matriculasFile;
 
 
 void startFiles();
+void include3Examples(LIST_ALUNO *list_of_alunos, LIST_DISCIPLINA *list_of_disciplinas, LIST_MATRICULA *list_of_matriculas);
 void cls();
 int menu();
 int menuAlunos();
@@ -61,6 +62,7 @@ int main() {
     start_list_matricula(&listMatriculas);
 
     startFiles();
+    include3Examples(&listAlunos, &listDisciplinas, &listMatriculas);
 
     if (!isFileEmpty(alunosFile, ARQ_ALUNOS)) {
         getAlunosFromFile(&listAlunos);
@@ -491,6 +493,86 @@ void startFiles() {
         }
     }
     fclose(matriculasFile);
+}
+
+void include3Examples(LIST_ALUNO *list_of_alunos, LIST_DISCIPLINA *list_of_disciplinas, LIST_MATRICULA *list_of_matriculas) {
+    if (isFileEmpty(alunosFile, ARQ_ALUNOS)) {
+        ALUNO aluno1;
+        ALUNO aluno2;
+        ALUNO aluno3;
+        LIST_ALUNO list_of_alunos;
+        start_list_aluno(&list_of_alunos);
+
+        strcpy(aluno1.codigo, "12345");
+        strcpy(aluno1.cpf, "12345678912");
+        strcpy(aluno1.nome, "Roosevelth Soares");
+        insert_end_aluno(&list_of_alunos, aluno1);
+        
+        strcpy(aluno2.codigo, "11111");
+        strcpy(aluno2.cpf, "45645645645");
+        strcpy(aluno2.nome, "Williams Bruce");
+        insert_end_aluno(&list_of_alunos, aluno2);
+        
+        strcpy(aluno3.codigo, "22222");
+        strcpy(aluno3.cpf, "78978978978");
+        strcpy(aluno3.nome, "Marcos Castro");
+        insert_end_aluno(&list_of_alunos, aluno3);
+
+        saveAlunosOnFile(&list_of_alunos);
+    }
+
+    if (isFileEmpty(disciplinasFile, ARQ_DISCIPLINAS)) {
+        DISCIPLINA disciplina1;
+        DISCIPLINA disciplina2;
+        DISCIPLINA disciplina3;
+        LIST_DISCIPLINA list_of_disciplinas;
+        start_list_disciplina(&list_of_disciplinas);
+
+        strcpy(disciplina1.codigo, "1234");
+        strcpy(disciplina1.nome, "Laboratorio de programacao");
+        strcpy(disciplina1.professor, "Dennis Ritchie");
+        strcpy(disciplina1.qtde_creditos, 120);
+        insert_end_disciplina(&list_of_disciplinas, disciplina1);
+        
+        strcpy(disciplina2.codigo, "1111");
+        strcpy(disciplina2.nome, "Algoritmos");
+        strcpy(disciplina2.professor, "Alan Turing");
+        strcpy(disciplina2.qtde_creditos, 90);
+        insert_end_disciplina(&list_of_disciplinas, disciplina2);
+        
+        strcpy(disciplina3.codigo, "2222");
+        strcpy(disciplina3.nome, "Sistemas operacionais");
+        strcpy(disciplina3.professor, "Linus Torvalds");
+        strcpy(disciplina3.qtde_creditos, 120);
+        insert_end_disciplina(&list_of_disciplinas, disciplina3);
+
+        saveDisciplinasOnFile(&list_of_disciplinas);
+    }
+
+    if (isFileEmpty(matriculasFile, ARQ_MATRICULAS)) {
+        MATRICULA matricula1;
+        MATRICULA matricula2;
+        MATRICULA matricula3;
+        LIST_MATRICULA list_of_matriculas;
+        start_list_matricula(&list_of_matriculas);
+
+        strcpy(matricula1.aluno, "Williams Bruce");
+        strcpy(matricula1.disciplina, "Laboratorio de programacao");
+        strcpy(matricula1.periodo, "2023.1");
+        insert_end_matricula(&list_of_matriculas, matricula1);
+        
+        strcpy(matricula2.aluno, "Roosevelth Soares");
+        strcpy(matricula2.disciplina, "Sistemas operacionais");
+        strcpy(matricula2.periodo, "2022.2");
+        insert_end_matricula(&list_of_matriculas, matricula2);
+        
+        strcpy(matricula3.aluno, "Marcos Castro");
+        strcpy(matricula3.disciplina, "Algoritmos");
+        strcpy(matricula3.periodo, "2022.1");
+        insert_end_matricula(&list_of_matriculas, matricula3);
+
+        saveMatriculasOnFile(&list_of_matriculas);
+    }
 }
 
 int menu(){
