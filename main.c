@@ -1,3 +1,9 @@
+/*******************************
+**    Dupla:                  **
+**        1º ten Roosevelth   **
+**        1º ten Bruce        **
+********************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
