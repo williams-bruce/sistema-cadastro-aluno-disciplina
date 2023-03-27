@@ -100,17 +100,30 @@ int main() {
                                 break;
                             }
                             printf("Alunos cadastrados: \n\n");
-                            printf("nr    Codigo                     Nome              CPF\n");
+                            printf("|----|--------|----------------------------------------------------|--------------|\n", "","","");
+                            printf("| nr |%1sCodigo%1s|%24sNome%24s|%5sCPF%6s|\n","","","","","","");
+                            printf("|----|--------|----------------------------------------------------|--------------|\n", "","","");
                             for(int i = 0; i<listAlunos.len; i++){
                                 ALUNO alunoToPrint = aluno_at_position(&listAlunos, i);
                                 printAluno(i, alunoToPrint);
                             }
+                            printf("|----|--------|----------------------------------------------------|--------------|\n", "","","");
                             puts("\n");
                             continuar();
                             break;
                         }
                         case 3:{ /* Remove um aluno cadastrado */
                             char alunoToRemove[50];
+                            printf("Listando todos os alunos cadastrados: \n\n");
+                            printf("|----|--------|----------------------------------------------------|--------------|\n", "","","");
+                            printf("| nr |%1sCodigo%1s|%24sNome%24s|%5sCPF%6s|\n","","","","","","");
+                            printf("|----|--------|----------------------------------------------------|--------------|\n", "","","");
+                            for(int i = 0; i<listAlunos.len; i++){
+                                ALUNO alunoToPrint = aluno_at_position(&listAlunos, i);
+                                printAluno(i, alunoToPrint);
+                            }
+                            printf("|----|--------|----------------------------------------------------|--------------|\n", "","","");
+                            puts("\n");
                             puts("Digite o codigo do aluno a ser removido: ");
                             fflush(stdin);
                             gets(alunoToRemove);
@@ -121,8 +134,12 @@ int main() {
                                 continuar();
                                 break;
                             }
-                            printf("Voce pretende apagar os dados do aluno:\n");
+                            printf("Voce pretende apagar os dados do(a) aluno(a):\n");
+                            printf("|----|--------|----------------------------------------------------|--------------|\n", "","","");
+                            printf("| nr |%1sCodigo%1s|%24sNome%24s|%5sCPF%6s|\n","","","","","","");
+                            printf("|----|--------|----------------------------------------------------|--------------|\n", "","","");
                             printAluno(position, aluno_at_position(&listAlunos, position));
+                            printf("|----|--------|----------------------------------------------------|--------------|\n", "","","");
                             putchar('\n');
                             if (sureDeleteData()){
                                 del_position_aluno(&listAlunos, position);
@@ -168,34 +185,52 @@ int main() {
                                 break;
                             }
                             printf("Disciplinas cadastradas: \n\n");
-                            printf("nr    Codigo                     Nome     %10s       Professor    %5s    Creditos\n", " ", " ");
+                            printf("|----|------|----------------------------------------------------|----------------------------------------------------|--------|\n");
+                            printf("| nr |%sCodigo%s|%24sNome%24s|%22sProfessor%21s|%sCreditos%s|\n","","","","","","","","");
+                            printf("|----|------|----------------------------------------------------|----------------------------------------------------|--------|\n");
                             for(int i = 0; i<listDisciplinas.len; i++){
                                 DISCIPLINA disciplinaToPrint = disciplina_at_position(&listDisciplinas, i);
                                 printDisciplina(i, disciplinaToPrint);
                             }
+                            printf("|----|------|----------------------------------------------------|----------------------------------------------------|--------|\n");
                             puts("\n");
                             continuar();
                             break;
                         }
                         case 3: { /*REMOVER DISCIPLINA*/
                             char disciplinaToRemove[50];
-                            puts("Digite o codigo da disciplina a ser removida: ");
+                            printf("Listando todas as disciplinas cadastradas: \n\n");
+                            printf("|----|------|----------------------------------------------------|----------------------------------------------------|--------|\n");
+                            printf("| nr |%sCodigo%s|%24sNome%24s|%22sProfessor%21s|%sCreditos%s|\n","","","","","","","","");
+                            printf("|----|------|----------------------------------------------------|----------------------------------------------------|--------|\n");
+                            for(int i = 0; i<listDisciplinas.len; i++){
+                                DISCIPLINA disciplinaToPrint = disciplina_at_position(&listDisciplinas, i);
+                                printDisciplina(i, disciplinaToPrint);
+                            }
+                            printf("|----|------|----------------------------------------------------|----------------------------------------------------|--------|\n");
+                            puts("\n");
+                            puts("Digite o nome da disciplina a ser removida: ");
                             fflush(stdin);
                             gets(disciplinaToRemove);
                             cls();
-                            int position = query_disciplina_by_codigo(&listDisciplinas, disciplinaToRemove);
+                            int position = query_disciplina_by_code(&listDisciplinas, disciplinaToRemove);
                             if (position == -1){
                                 printf("A disciplina \"%s\" nao esta cadastrada. Tente novamente com uma disciplina cadastrada.\n\n", disciplinaToRemove);
                                 continuar();
                                 break;
                             }
                             printf("Voce pretende apagar os dados da disciplina:\n");
+                            printf("|----|------|----------------------------------------------------|----------------------------------------------------|--------|\n");
+                            printf("| nr |%sCodigo%s|%24sNome%24s|%22sProfessor%21s|%sCreditos%s|\n","","","","","","","","");
+                            printf("|----|------|----------------------------------------------------|----------------------------------------------------|--------|\n");
                             printDisciplina(position, disciplina_at_position(&listDisciplinas, position));
+                            printf("|----|------|----------------------------------------------------|----------------------------------------------------|--------|\n");
                             putchar('\n');
                             if (sureDeleteData()){
                                 printf("%d\n", listDisciplinas.len);
                                 printf("%d\n", position);
                                 del_position_disciplina(&listDisciplinas, position);
+                                cls();
                                 puts("Disciplina removida com sucesso!\n\n");
                                 continuar();
                                 break;
@@ -232,13 +267,13 @@ int main() {
                             break;
                         }
                         case 2:{
-                            puts("Exibindo todas as matriculas existentes...\n");
-                            printf("nr |%14sNome%14s|%11sDisciplina%11s|%3sPeriodo%2s|\n","","","","","","");
-                            printf("---|--------------------------------|--------------------------------|------------|\n", "","","");
+                            puts("Exibindo todas as matriculas existentes:  \n");
+                            printf("| nr |%14sNome%14s|%11sDisciplina%11s|%3sPeriodo%2s|\n","","","","","","");
+                            printf("|----|--------------------------------|--------------------------------|------------|\n", "","","");
                             for (int i = 0; i < listMatriculas.len; i++){
                                 printMatricula(i, matricula_at_position(&listMatriculas, i));
                             }
-                            printf("---|--------------------------------|--------------------------------|------------|\n", "","","");
+                            printf("|----|--------------------------------|--------------------------------|------------|\n", "","","");
                             puts("");
                             continuar();
                             break;
@@ -317,8 +352,16 @@ int main() {
                             break;
                         }
                         case 5:{ /*Remover matricula de aluno em disciplina.*/
+                            puts("Exibindo todas as matriculas existentes:  \n");
+                            printf("|----|--------------------------------|--------------------------------|------------|\n", "","","");
+                            printf("| nr |%14sNome%14s|%11sDisciplina%11s|%3sPeriodo%2s|\n","","","","","","");
+                            printf("|----|--------------------------------|--------------------------------|------------|\n", "","","");
+                            for (int i = 0; i < listMatriculas.len; i++){
+                                printMatricula(i, matricula_at_position(&listMatriculas, i));
+                            }
+                            printf("|----|--------------------------------|--------------------------------|------------|\n", "","","");
                             char aluno[50];
-                            puts("Digite o nome do aluno:");
+                            puts("Digite o nome do aluno a ser removido:");
                             fflush(stdin);
                             gets(aluno);
                             int alunoPosition = query_matricula_by_aluno(&listMatriculas, aluno);
@@ -329,6 +372,8 @@ int main() {
                                 cls();
                                 break;
                             }
+                            cls();
+                            printDisciplinasAluno(&listMatriculas, aluno);
                             char disciplina[50];
                             puts("Digite o nome da disciplina:");
                             gets(disciplina);
@@ -339,6 +384,8 @@ int main() {
                                 cls();
                                 break;
                             }
+                            cls();
+                            printDisciplinasAluno(&listMatriculas, aluno);
                             char periodo[20];
                             puts("Digite o periodo:");
                             gets(periodo);
@@ -349,9 +396,14 @@ int main() {
                                 cls();
                                 break;
                             }
+                            cls();
                             printf("Voce pretende remover a seguinte matricula:\n");
+                            printf("|----|--------------------------------|--------------------------------|------------|\n", "","","");
+                            printf("| nr |%14sNome%14s|%11sDisciplina%11s|%3sPeriodo%2s|\n","","","","","","");
+                            printf("|----|--------------------------------|--------------------------------|------------|\n", "","","");
                             int matriculaPosition = query_matricula_by_all_atributes(&listMatriculas, aluno, disciplina, periodo);
                             printMatricula(matriculaPosition, matricula_at_position(&listMatriculas, matriculaPosition));
+                            printf("|----|--------------------------------|--------------------------------|------------|\n", "","","");
                             putchar('\n');
                             if (sureDeleteData()){
                                 del_position_matricula(&listMatriculas, matriculaPosition);
@@ -697,15 +749,15 @@ void saveMatriculasOnFile(LIST_MATRICULA *list_of_matriculas) {
 }
 
 void printAluno(int contador, ALUNO aluno) { /* printa um aluno na tela com sua posição e nome */
-    printf("%d --> %5s   %30s   %11s\n", contador+1, aluno.codigo ,aluno.nome, aluno.cpf);
+    printf("| %2d | %6s | %50s | %12s |\n", contador+1, aluno.codigo ,aluno.nome, aluno.cpf);
 }
 
 void printDisciplina(int contador, DISCIPLINA disciplina) { /* printa uma disciplina na tela com sua posição e nome */
-    printf("%d --> %4s   %30s   %30s  %9d\n", contador+1, disciplina.codigo ,disciplina.nome, disciplina.professor, disciplina.qtde_creditos);
+    printf("| %2d | %4s | %50s | %50s | %6d |\n", contador+1, disciplina.codigo ,disciplina.nome, disciplina.professor, disciplina.qtde_creditos);
 }
 
 void printMatricula(int contador, MATRICULA matricula) {
-    printf("%2d | %30s | %30s | %10s |\n",contador+1, matricula.aluno, matricula.disciplina, matricula.periodo);
+    printf("| %2d | %30s | %30s | %10s |\n",contador+1, matricula.aluno, matricula.disciplina, matricula.periodo);
 }
 
 void continuar() {
@@ -822,16 +874,20 @@ void printDisciplinasAluno(LIST_MATRICULA *list_of_matriculas, char *aluno) {
     strcpy(name_temp_aluno, strlwr(aluno));
 
     printf("Lista das disciplinas do aluno %s:\n\n", aluno);
-    printf(" nr %12s disciplina %7s Periodo \n"," ", " ");
+    printf("|----|----------------------------------------------------|------------|\n");
+    printf("| nr |%21sDisciplina%21s|%3sPeriodo%2s| \n","","","","");
+    printf("|----|----------------------------------------------------|------------|\n");
+ 
     for(int i = 0; i < list_of_matriculas->len; i++) {
         strcpy(name_test_aluno, strlwr((aux->matricula).aluno));
 
         if (!(strcmp(name_temp_aluno, name_test_aluno))) {
-            printf("%2d %24s %15s\n", contador, (aux->matricula).disciplina, (aux->matricula).periodo);
+            printf("| %2d | %50s | %10s |\n", contador, (aux->matricula).disciplina, (aux->matricula).periodo);
             contador++;
         }
         aux = aux->next;
     }
+    printf("|----|----------------------------------------------------|------------|\n");
     putchar('\n');
 }
 
@@ -848,18 +904,21 @@ void printDisciplinasOfAlunoOnPeriodo(LIST_MATRICULA *list_of_matriculas, char *
     strcpy(periodo_temp, strlwr(periodo));
 
     printf("Lista das disciplinas do aluno %s no periodo %s:\n\n", aluno, periodo);
-    printf(" nr %12s disciplina\n","");
+    printf("|----|----------------------------------------------------|\n");
+    printf("| nr |%21sDisciplina%21s|\n","","");
+    printf("|----|----------------------------------------------------|\n");
     for(int i = 0; i < list_of_matriculas->len; i++) {
         strcpy(aluno_test, strlwr((aux->matricula).aluno));
         strcpy(periodo_test, strlwr((aux->matricula).periodo));
 
         int teste = abs(strcmp(aluno_temp, aluno_test)) + abs(strcmp(periodo_temp, periodo_test));
         if (!(teste)) {
-            printf("%2d %24s\n", contador, (aux->matricula).disciplina);
+            printf("| %2d | %50s |\n", contador, (aux->matricula).disciplina);
             contador++;
         }
         aux = aux->next;
     }
+    printf("|----|----------------------------------------------------|\n");
     putchar('\n');
 }
 
@@ -873,16 +932,20 @@ void printAlunosOnDisciplina(LIST_MATRICULA *list_of_matriculas, char *disciplin
     strcpy(name_temp_disciplina, strlwr(disciplina));
 
     printf("Lista dos alunos da disciplina %s por periodo:\n\n", disciplina);
-    printf(" nr %12s aluno %7s Periodo \n"," ", " ");
+    printf("|----|----------------------------------------------------|------------|\n");
+    printf("| nr |%24saluno%23s|%3sPeriodo%2s|\n","","","","");
+    printf("|----|----------------------------------------------------|------------|\n");
+
     for(int i = 0; i < list_of_matriculas->len; i++) {
         strcpy(name_test_disciplina, strlwr((aux->matricula).disciplina));
 
         if (!(strcmp(name_temp_disciplina, name_test_disciplina))) {
-            printf("%2d %24s %15s\n", contador, (aux->matricula).aluno, (aux->matricula).periodo);
+            printf("| %2d | %50s | %10s |\n", contador, (aux->matricula).aluno, (aux->matricula).periodo);
             contador++;
         }
         aux = aux->next;
     }
+    printf("|----|----------------------------------------------------|------------|\n");
     putchar('\n');
 }
 
@@ -899,23 +962,21 @@ void printAlunosOfDisciplinaOnPeriodo(LIST_MATRICULA *list_of_matriculas, char *
     strcpy(periodo_temp, strlwr(periodo));
 
     printf("Lista dos alunos da disciplina %s no periodo %s:\n\n", disciplina, periodo);
-    printf(" nr %12s aluno\n","");
+    printf("|----|----------------------------------------------------|\n");
+    printf("| nr |%24saluno%23s|\n","","");
+    printf("|----|----------------------------------------------------|\n");
     for(int i = 0; i < list_of_matriculas->len; i++) {
         strcpy(disciplina_test, strlwr((aux->matricula).disciplina));
         strcpy(periodo_test, strlwr((aux->matricula).periodo));
 
         int teste = abs(strcmp(disciplina_temp, disciplina_test)) + abs(strcmp(periodo_temp, periodo_test));
-        // puts("------ start");
-        // printf("%d\n", teste);
-        // printf("disciplina temp: %s. ### disciplina test: %s\n", disciplina_temp, disciplina_test);
-        // printf("periodo temp: %s. ### periodo test: %s\n", periodo_temp, periodo_test);
-        // puts("------ end");
         if (!teste) {
-            printf("%2d %24s\n", contador, (aux->matricula).aluno);
+            printf("| %2d | %50s |\n", contador, (aux->matricula).aluno);
             contador++;
         }
         aux = aux->next;
     }
+    printf("|----|----------------------------------------------------|\n");
     putchar('\n');
 }
 
