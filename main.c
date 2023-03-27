@@ -209,7 +209,7 @@ int main() {
                             }
                             printf("|----|------|----------------------------------------------------|----------------------------------------------------|--------|\n");
                             puts("\n");
-                            puts("Digite o nome da disciplina a ser removida: ");
+                            puts("Digite o codigo da disciplina a ser removida: ");
                             fflush(stdin);
                             gets(disciplinaToRemove);
                             cls();
@@ -260,6 +260,13 @@ int main() {
                             cls();
                             MATRICULA matricula;
                             getMatriculaData(&matricula, &listAlunos, &listDisciplinas);
+                            int existMatricula = query_matricula_by_all_atributes(&listMatriculas, matricula.aluno, matricula.disciplina, matricula.periodo);
+                            if (existMatricula != -1) {
+                                cls();
+                                printf("O aluno %s ja esta matriculado na disciplina %s no periodo %s.\n", matricula.aluno, matricula.disciplina, matricula.periodo);
+                                continuar();
+                                break;
+                            }
                             insert_end_matricula(&listMatriculas, matricula);
                             cls();
                             puts("Aluno matriculado com sucesso!");
