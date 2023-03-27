@@ -537,19 +537,19 @@ void include3Examples(LIST_ALUNO *list_of_alunos, LIST_DISCIPLINA *list_of_disci
         strcpy(disciplina1.codigo, "1234");
         strcpy(disciplina1.nome, "Laboratorio de programacao");
         strcpy(disciplina1.professor, "Dennis Ritchie");
-        strcpy(disciplina1.qtde_creditos, 120);
+        disciplina1.qtde_creditos = 120;
         insert_end_disciplina(&list_of_disciplinas, disciplina1);
         
         strcpy(disciplina2.codigo, "1111");
         strcpy(disciplina2.nome, "Algoritmos");
         strcpy(disciplina2.professor, "Alan Turing");
-        strcpy(disciplina2.qtde_creditos, 90);
+        disciplina2.qtde_creditos = 90;
         insert_end_disciplina(&list_of_disciplinas, disciplina2);
         
         strcpy(disciplina3.codigo, "2222");
         strcpy(disciplina3.nome, "Sistemas operacionais");
         strcpy(disciplina3.professor, "Linus Torvalds");
-        strcpy(disciplina3.qtde_creditos, 120);
+        disciplina3.qtde_creditos = 120;
         insert_end_disciplina(&list_of_disciplinas, disciplina3);
 
         saveDisciplinasOnFile(&list_of_disciplinas);
