@@ -95,6 +95,12 @@ int main() {
                             cls();
                             ALUNO aluno;
                             getAlunoData(&aluno);
+                            int testeCpf = query_aluno_by_cpf(&listAlunos, aluno.cpf);
+                            if (testeCpf != -1) {
+                                printf("Ja existe um aluno com este cpf. Tente novamente.\n");
+                                continuar();
+                                break;
+                            }
                             insert_end_aluno(&listAlunos, aluno);
                             puts("Aluno cadastrado com sucesso!\n");
                             continuar();
