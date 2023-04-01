@@ -29,4 +29,3 @@ disciplina, também em um determinado período.
 9. Finalmente, o sistema deve permitir o salvamento e a recuperação dos
 dados entre sessões
 
-Entregar arquivo (mínimo de 3 alunos, disciplinas e alocações)
