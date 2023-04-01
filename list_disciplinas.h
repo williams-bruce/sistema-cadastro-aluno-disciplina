@@ -1,3 +1,11 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+#ifndef __LIST_DISCIPLINAS__
+#define __LIST_DISCIPLINAS__
+
 #define DATA_TYPE DISCIPLINA
 #define NO NO_DISCIPLINA
 #define LIST_TYPE LIST_DISCIPLINA
@@ -223,3 +231,5 @@ int query_disciplina_by_name(LIST_TYPE *lista, char *nome) {
 #undef DATA_TYPE
 #undef NO
 #undef LIST_TYPE
+
+#endif // __LIST_DISCIPLIAS__

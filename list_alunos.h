@@ -1,3 +1,11 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifndef __LIST_ALUNOS__
+#define __LIST_ALUNOS__
+
+
 #define DATA_TYPE ALUNO
 #define NO NO_ALUNO
 #define LIST_TYPE LIST_ALUNO
@@ -218,29 +226,9 @@ int query_aluno_by_name(LIST_TYPE *lista, char *nome) {
     return -1;
 }
 
-int query_aluno_by_cpf(LIST_TYPE *lista, char *cpf) {
-    NO *aux = lista->start;
-    if (aux == NULL) {
-        return -1;
-    }
-    for (int i = 0; i < lista->len; i++) {
-        char name_temp[50];
-        char name_test[50];
-        strcpy(name_temp, strlwr(cpf));
-        strcpy(name_test, strlwr((aux->aluno).cpf));
-
-        int teste = strcmp(name_temp, name_test);
-        if (!(teste)) {
-            return i;
-        }
-        if (aux->next != NULL) {
-            aux = aux->next;
-        }
-    }
-    return -1;
-}
-
 
 #undef DATA_TYPE
 #undef NO
 #undef LIST_TYPE
+
+#endif // __LIST_ALUNOS__

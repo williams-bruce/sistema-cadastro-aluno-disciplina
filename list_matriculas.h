@@ -1,6 +1,13 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #define DATA_TYPE MATRICULA
 #define NO NO_MATRICULA
 #define LIST_TYPE LIST_MATRICULA
+
+#ifndef __LIST_MATRICULAS__
+#define __LIST_MATRICULAS__
 
 typedef struct MAT {
     char aluno[50];
@@ -340,3 +347,5 @@ int query_matricula_by_all_atributes(LIST_TYPE *lista, char *aluno, char *discip
 #undef DATA_TYPE
 #undef NO
 #undef LIST_TYPE
+
+#endif // __LIST_MATRICULAS__
