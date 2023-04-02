@@ -299,6 +299,16 @@ int main() {
                                 continuar();
                                 break;
                             }
+                            printf("Todos os alunos cadastrados: \n\n");
+                            printf("|----|--------|----------------------------------------------------|--------------|\n");
+                            printf("| nr |%1sCodigo%1s|%24sNome%24s|%5sCPF%6s|\n","","","","","","");
+                            printf("|----|--------|----------------------------------------------------|--------------|\n");
+                            for(int i = 0; i<listAlunos.len; i++){
+                                ALUNO alunoToPrint = aluno_at_position(&listAlunos, i);
+                                printAluno(i, alunoToPrint);
+                            }
+                            printf("|----|--------|----------------------------------------------------|--------------|\n");
+                            puts("\n");
                             char aluno[50];
                             puts("Digite o nome do aluno: ");
                             fflush(stdin);
@@ -335,6 +345,16 @@ int main() {
                                 continuar();
                                 break;
                             }
+                            printf("Todas as disciplinas cadastradas: \n\n");
+                            printf("|----|------|----------------------------------------------------|----------------------------------------------------|--------|\n");
+                            printf("| nr |%sCodigo%s|%24sNome%24s|%22sProfessor%21s|%sCreditos%s|\n","","","","","","","","");
+                            printf("|----|------|----------------------------------------------------|----------------------------------------------------|--------|\n");
+                            for(int i = 0; i<listDisciplinas.len; i++){
+                                DISCIPLINA disciplinaToPrint = disciplina_at_position(&listDisciplinas, i);
+                                printDisciplina(i, disciplinaToPrint);
+                            }
+                            printf("|----|------|----------------------------------------------------|----------------------------------------------------|--------|\n");
+                            puts("\n");
                             char disciplina[50];
                             puts("Digite o nome da disciplina:");
                             fflush(stdin);
